@@ -1,21 +1,28 @@
+import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import { Button } from './src/components/Button/Button';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import HomeScreen from './src/screens/Home/Home';
+
+SplashScreen.preventAutoHideAsync();
+
 export default function App() {
+  const [loaded, error] = useFonts({
+    'CabinetGrotesk': require('./assets/fonts/CabinetGrotesk-Variable.ttf'),
+    'Satoshi': require('./assets/fonts/Satoshi-Variable.ttf'),
+  });
+
+  useEffect(() => {
+    if (loaded || error) SplashScreen.hideAsync();
+  }, [loaded, error]);
+
+  if (!loaded && !error) return null;
+
   return (
-    <View style={styles.container}>
-<Button label="Iniciar Sesión" onPress={() =>{}}></Button>
+    <SafeAreaProvider>
+      <HomeScreen />
       <StatusBar style="auto" />
-    </View>
+    </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
