@@ -23,7 +23,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#ffffff',
-    },    predictiveBackGestureEnabled: false,
+    },
+    edgeToEdgeEnabled: true,
+    predictiveBackGestureEnabled: false,
   },
   web: {
     favicon: './assets/favicon.png',
@@ -34,4 +36,3 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
   },
 });
-

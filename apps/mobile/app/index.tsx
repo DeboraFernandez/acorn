@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Button, Text, View } from 'react-native';
-import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 import { signInWithGoogle } from '../lib/auth/google';
 import { hasSupabaseEnv } from '../lib/env';
@@ -19,7 +18,7 @@ export default function HomeScreen() {
 
     let mounted = true;
 
-    supabase.auth.getSession().then(({ data }: { data: { session: Session | null } }) => {
+    supabase.auth.getSession().then(({ data }) => {
       if (mounted) {
         setIsAuthenticated(Boolean(data.session));
       }
@@ -27,7 +26,7 @@ export default function HomeScreen() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       if (mounted) {
         setIsAuthenticated(Boolean(session));
       }
