@@ -1,32 +1,10 @@
 {
-  "name": "acorn",
-  "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "engines": {
-    "node": ">=20.11.0",
-    "pnpm": ">=9.0.0"
-  },
-  "packageManager": "pnpm@9.0.0",
-  "scripts": {
-    "dev": "pnpm --filter web dev",
-    "build": "pnpm --filter web build",
-    "lint": "pnpm --filter web lint",
-    "typecheck": "pnpm --filter web typecheck",
-    "db:start": "supabase start",
-    "db:stop": "supabase stop",
-    "db:reset": "supabase db reset",
-    "db:migrate": "supabase migration new",
-    "db:studio": "supabase studio",
-    "mobile:ios": "pnpm --filter mobile ios"
-
-  },
-  "version": "1.0.0",
   "dependencies": {
-    "expo": "~55.0.8",
-    "react": "19.2.0",
-    "react-native": "0.83.2"
+    "@react-native-async-storage/async-storage": "^3.0.2",
+    "@supabase/supabase-js": "^2.101.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3"
   }
 }
