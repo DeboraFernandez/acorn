@@ -1,17 +1,19 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '../../theme/colors';
 
 export const styles = StyleSheet.create({
   tag: {
     alignSelf: 'flex-start',
-    backgroundColor: '#E8F0FE',
-    borderRadius: 4,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    marginTop: 4,
+    backgroundColor: colors.brownMid,
+    borderRadius: 24,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    marginTop: 8,
   },
   tagText: {
-    fontSize: 11,
-    color: '#3B6EE8',
-    fontWeight: '500',
+    fontFamily: 'Satoshi-Regular',
+    fontSize: 10,
+    color: colors.white,
+    letterSpacing: 0.2,
   },
 });
