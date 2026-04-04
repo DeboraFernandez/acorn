@@ -1,5 +1,5 @@
 import { Pressable, Text, StyleSheet } from "react-native"
-import { colors } from "../../constants/theme";
+import { colors } from "../../theme/colors";
 
 
 type ButtonProps = {
@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
     height:32,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.primary,
+    backgroundColor: colors.background,
     borderRadius: 8
   },
 
