@@ -31,6 +31,15 @@ marginHorizontal: 8,
     shadowRadius: 12,
     elevation: 8,
   },
+  heroImage: {
+    resizeMode: 'cover',
+    borderRadius: 20,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
 
   // ── Header ──
   header: {
@@ -126,6 +135,32 @@ marginHorizontal: 8,
   cardList: {
     paddingHorizontal: 20,
     gap: 12,
+  },
+  listError: {
+    marginHorizontal: 20,
+    marginBottom: 10,
+    color: '#8b2a1b',
+    fontFamily: 'Satoshi-Regular',
+    fontSize: 12,
+  },
+  emptyState: {
+    marginHorizontal: 20,
+    marginTop: 24,
+    marginBottom: 24,
+    alignItems: 'center',
+    gap: 10,
+  },
+  emptyTitle: {
+    fontFamily: 'CabinetGrotesk-Bold',
+    fontSize: 22,
+    color: colors.black,
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    fontFamily: 'Satoshi-Regular',
+    fontSize: 14,
+    color: colors.brownMid,
+    textAlign: 'center',
   },
 
   // ── NavBar ──

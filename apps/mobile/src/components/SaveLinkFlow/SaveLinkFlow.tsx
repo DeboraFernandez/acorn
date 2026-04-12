@@ -11,6 +11,7 @@ type SaveLinkFlowProps = {
   onClose: () => void;
   initialUrl?: string;
   onInitialUrlConsumed?: () => void;
+  onSaved?: () => void;
 };
 
 export function SaveLinkFlow({
@@ -18,6 +19,7 @@ export function SaveLinkFlow({
   onClose,
   initialUrl,
   onInitialUrlConsumed,
+  onSaved,
 }: SaveLinkFlowProps) {
   const {
     url,
@@ -56,6 +58,7 @@ export function SaveLinkFlow({
 
   const handleConfirm = () => {
     confirmSave();
+    onSaved?.();
   };
 
   const handleStartNew = () => {
