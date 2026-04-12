@@ -51,6 +51,13 @@ export const styles = StyleSheet.create({
     fontFamily: 'Satoshi-Regular',
     fontSize: 12,
   },
+  resultsCounter: {
+    marginTop: 4,
+    marginBottom: 6,
+    color: colors.brownMid,
+    fontFamily: 'Satoshi-Regular',
+    fontSize: 12,
+  },
   listContent: {
     paddingTop: 12,
     paddingBottom: 4,

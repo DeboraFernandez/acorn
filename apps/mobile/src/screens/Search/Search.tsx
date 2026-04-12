@@ -13,6 +13,7 @@ import {
 
 import { supabase } from '../../../lib/supabase';
 import { Button } from '../../components/Button/Button';
+import { DateFilterValue, FilterPanel, ReadFilterValue } from '../../components/FilterPanel/FilterPanel';
 import { styles } from './Search.styles';
 
 type SearchResult = {
@@ -21,6 +22,9 @@ type SearchResult = {
   domain: string;
   snippet: string;
   url: string;
+  createdAt: string;
+  isRead: boolean;
+  tags: string[];
 };
 
 type SearchRow = {
@@ -29,6 +33,9 @@ type SearchRow = {
   description: string | null;
   domain: string | null;
   url: string | null;
+  created_at: string;
+  is_read: boolean;
+  tags: string[] | null;
 };
 
 type SearchScreenProps = {
@@ -47,7 +54,34 @@ function mapSearchResult(row: SearchRow): SearchResult {
     domain: row.domain || 'Dominio no disponible',
     snippet,
     url: row.url || '',
+    createdAt: row.created_at,
+    isRead: Boolean(row.is_read),
+    tags: (row.tags ?? []).filter(Boolean),
   };
+}
+
+function applyDateFilter(createdAt: string, filter: DateFilterValue) {
+  if (filter === 'all') {
+    return true;
+  }
+
+  const createdTime = new Date(createdAt).getTime();
+  if (Number.isNaN(createdTime)) {
+    return false;
+  }
+
+  const dayToMs = 24 * 60 * 60 * 1000;
+  const now = Date.now();
+
+  if (filter === '7d') {
+    return createdTime >= now - 7 * dayToMs;
+  }
+
+  if (filter === '30d') {
+    return createdTime >= now - 30 * dayToMs;
+  }
+
+  return createdTime >= now - 365 * dayToMs;
 }
 
 export function SearchScreen({ visible, onClose, onOpenDetail }: SearchScreenProps) {
@@ -55,6 +89,10 @@ export function SearchScreen({ visible, onClose, onOpenDetail }: SearchScreenPro
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
   const [results, setResults] = React.useState<SearchResult[]>([]);
+  const [selectedDomain, setSelectedDomain] = React.useState<string | null>(null);
+  const [selectedTag, setSelectedTag] = React.useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = React.useState<DateFilterValue>('all');
+  const [selectedRead, setSelectedRead] = React.useState<ReadFilterValue>('all');
 
   const runSearch = React.useCallback(async (rawTerm: string) => {
     const term = rawTerm.trim();
@@ -84,13 +122,13 @@ export function SearchScreen({ visible, onClose, onOpenDetail }: SearchScreenPro
 
     const { data, error: searchError } = await supabase
       .from('items_with_links')
-      .select('id,title,description,domain,url')
+      .select('id,title,description,domain,url,created_at,is_read,tags')
       .eq('user_id', user.id)
       .or(
         `title.ilike.${termPattern},description.ilike.${termPattern},domain.ilike.${termPattern},url.ilike.${termPattern}`,
       )
       .order('created_at', { ascending: false })
-      .limit(40);
+      .limit(120);
 
     setLoading(false);
 
@@ -100,6 +138,59 @@ export function SearchScreen({ visible, onClose, onOpenDetail }: SearchScreenPro
     }
 
     setResults(((data ?? []) as SearchRow[]).map(mapSearchResult));
+  }, []);
+
+  const domainOptions = React.useMemo(
+    () => Array.from(new Set(results.map((result) => result.domain).filter(Boolean))).slice(0, 20),
+    [results],
+  );
+
+  const tagOptions = React.useMemo(
+    () =>
+      Array.from(
+        new Set(
+          results.flatMap((result) => result.tags.map((tag) => tag.trim()).filter(Boolean)),
+        ),
+      ).slice(0, 30),
+    [results],
+  );
+
+  const filteredResults = React.useMemo(
+    () =>
+      results.filter((result) => {
+        if (selectedDomain && result.domain !== selectedDomain) {
+          return false;
+        }
+
+        if (selectedTag && !result.tags.some((tag) => tag.toLowerCase() === selectedTag.toLowerCase())) {
+          return false;
+        }
+
+        if (!applyDateFilter(result.createdAt, selectedDate)) {
+          return false;
+        }
+
+        if (selectedRead === 'read' && !result.isRead) {
+          return false;
+        }
+
+        if (selectedRead === 'unread' && result.isRead) {
+          return false;
+        }
+
+        return true;
+      }),
+    [results, selectedDate, selectedDomain, selectedRead, selectedTag],
+  );
+
+  const hasActiveFilters =
+    selectedDomain !== null || selectedTag !== null || selectedDate !== 'all' || selectedRead !== 'all';
+
+  const clearFilters = React.useCallback(() => {
+    setSelectedDomain(null);
+    setSelectedTag(null);
+    setSelectedDate('all');
+    setSelectedRead('all');
   }, []);
 
   React.useEffect(() => {
@@ -122,8 +213,9 @@ export function SearchScreen({ visible, onClose, onOpenDetail }: SearchScreenPro
       setError('');
       setResults([]);
       setLoading(false);
+      clearFilters();
     }
-  }, [visible]);
+  }, [clearFilters, visible]);
 
   const renderEmpty = () => {
     if (loading) {
@@ -146,8 +238,10 @@ export function SearchScreen({ visible, onClose, onOpenDetail }: SearchScreenPro
 
     return (
       <View style={styles.emptyState}>
-        <Text style={styles.emptyTitle}>No hay coincidencias</Text>
-        <Text style={styles.emptySubtitle}>Prueba con otra palabra clave.</Text>
+        <Text style={styles.emptyTitle}>{hasActiveFilters ? 'No hay resultados con esos filtros' : 'No hay coincidencias'}</Text>
+        <Text style={styles.emptySubtitle}>
+          {hasActiveFilters ? 'Prueba a limpiar o combinar otros filtros.' : 'Prueba con otra palabra clave.'}
+        </Text>
       </View>
     );
   };
@@ -177,8 +271,29 @@ export function SearchScreen({ visible, onClose, onOpenDetail }: SearchScreenPro
 
               {error ? <Text style={styles.error}>{error}</Text> : null}
 
+              <FilterPanel
+                domains={domainOptions}
+                tags={tagOptions}
+                selectedDomain={selectedDomain}
+                selectedTag={selectedTag}
+                selectedDate={selectedDate}
+                selectedRead={selectedRead}
+                onSelectDomain={setSelectedDomain}
+                onSelectTag={setSelectedTag}
+                onSelectDate={setSelectedDate}
+                onSelectRead={setSelectedRead}
+                onClear={clearFilters}
+              />
+
+              {query.trim() ? (
+                <Text style={styles.resultsCounter}>
+                  {filteredResults.length} resultados
+                  {hasActiveFilters ? ` (de ${results.length} tras aplicar filtros)` : ''}
+                </Text>
+              ) : null}
+
               <FlatList
-                data={results}
+                data={filteredResults}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
                   <View style={styles.resultCard}>
@@ -215,7 +330,7 @@ export function SearchScreen({ visible, onClose, onOpenDetail }: SearchScreenPro
                   </View>
                 )}
                 ListEmptyComponent={renderEmpty}
-                contentContainerStyle={results.length === 0 ? styles.listEmptyContent : styles.listContent}
+                contentContainerStyle={filteredResults.length === 0 ? styles.listEmptyContent : styles.listContent}
                 keyboardShouldPersistTaps='handled'
               />
             </View>
