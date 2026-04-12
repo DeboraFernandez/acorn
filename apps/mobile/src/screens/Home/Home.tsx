@@ -21,6 +21,7 @@ import { SaveFileFlow } from '../../components/SaveFileFlow/SaveFileFlow';
 import { SaveLinkFlow } from '../../components/SaveLinkFlow/SaveLinkFlow';
 import { ItemDetail } from '../ItemDetail/ItemDetail';
 import { SearchScreen } from '../Search/Search';
+import { SmartFolders } from '../SmartFolders/SmartFolders';
 import { TagManagement } from '../TagManagement/TagManagement';
 import { colors } from '../../theme/colors';
 import { styles } from './Home.styles';
@@ -59,8 +60,10 @@ type NavBarProps = {
   onAddPress: () => void;
   onSearchPress: () => void;
   onTagsPress: () => void;
+  onSmartFoldersPress: () => void;
   searchActive: boolean;
   tagsActive: boolean;
+  smartFoldersActive: boolean;
 };
 
 const PAGE_SIZE = 12;
@@ -96,7 +99,15 @@ function mapResource(row: ResourceRow): ContentCardData {
   };
 }
 
-function NavBar({ onAddPress, onSearchPress, onTagsPress, searchActive, tagsActive }: NavBarProps) {
+function NavBar({
+  onAddPress,
+  onSearchPress,
+  onTagsPress,
+  onSmartFoldersPress,
+  searchActive,
+  tagsActive,
+  smartFoldersActive,
+}: NavBarProps) {
   return (
     <View style={styles.navbar}>
       <TouchableOpacity style={styles.navItem} activeOpacity={0.7}>
@@ -118,9 +129,9 @@ function NavBar({ onAddPress, onSearchPress, onTagsPress, searchActive, tagsActi
         <Text style={[styles.navLabel, tagsActive ? styles.navLabelActive : null]}>Etiquetas</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.navItem} activeOpacity={0.7}>
+      <TouchableOpacity style={styles.navItem} activeOpacity={0.7} onPress={onSmartFoldersPress}>
         <Text style={styles.navIconPlaceholder}>◯</Text>
-        <Text style={styles.navLabel}>Perfil</Text>
+        <Text style={[styles.navLabel, smartFoldersActive ? styles.navLabelActive : null]}>Carpetas IA</Text>
       </TouchableOpacity>
     </View>
   );
@@ -136,6 +147,7 @@ export default function HomeScreen({
   const [saveFileOpen, setSaveFileOpen] = React.useState(false);
   const [searchOpen, setSearchOpen] = React.useState(false);
   const [tagsOpen, setTagsOpen] = React.useState(false);
+  const [smartFoldersOpen, setSmartFoldersOpen] = React.useState(false);
   const [selectedItemId, setSelectedItemId] = React.useState<string | null>(null);
 
   const [resources, setResources] = React.useState<ContentCardData[]>([]);
@@ -336,8 +348,10 @@ export default function HomeScreen({
         onAddPress={handleFabPress}
         onSearchPress={() => setSearchOpen(true)}
         onTagsPress={() => setTagsOpen(true)}
+        onSmartFoldersPress={() => setSmartFoldersOpen(true)}
         searchActive={searchOpen}
         tagsActive={tagsOpen}
+        smartFoldersActive={smartFoldersOpen}
       />
 
       <SaveLinkFlow
@@ -377,6 +391,11 @@ export default function HomeScreen({
         visible={tagsOpen}
         onClose={() => setTagsOpen(false)}
         onUpdated={() => void fetchResources('refresh')}
+      />
+
+      <SmartFolders
+        visible={smartFoldersOpen}
+        onClose={() => setSmartFoldersOpen(false)}
       />
     </SafeAreaView>
   );
