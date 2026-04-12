@@ -20,6 +20,7 @@ import { ContentCard } from '../../components/ContentCard/ContentCard';
 import { SaveFileFlow } from '../../components/SaveFileFlow/SaveFileFlow';
 import { SaveLinkFlow } from '../../components/SaveLinkFlow/SaveLinkFlow';
 import { ItemDetail } from '../ItemDetail/ItemDetail';
+import { SearchScreen } from '../Search/Search';
 import { colors } from '../../theme/colors';
 import { styles } from './Home.styles';
 
@@ -55,6 +56,8 @@ type HomeScreenProps = {
 
 type NavBarProps = {
   onAddPress: () => void;
+  onSearchPress: () => void;
+  searchActive: boolean;
 };
 
 const PAGE_SIZE = 12;
@@ -90,7 +93,7 @@ function mapResource(row: ResourceRow): ContentCardData {
   };
 }
 
-function NavBar({ onAddPress }: NavBarProps) {
+function NavBar({ onAddPress, onSearchPress, searchActive }: NavBarProps) {
   return (
     <View style={styles.navbar}>
       <TouchableOpacity style={styles.navItem} activeOpacity={0.7}>
@@ -98,9 +101,9 @@ function NavBar({ onAddPress }: NavBarProps) {
         <Text style={[styles.navLabel, styles.navLabelActive]}>Inicio</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.navItem} activeOpacity={0.7}>
+      <TouchableOpacity style={styles.navItem} activeOpacity={0.7} onPress={onSearchPress}>
         <Text style={styles.navIconPlaceholder}>⌕</Text>
-        <Text style={styles.navLabel}>Buscar</Text>
+        <Text style={[styles.navLabel, searchActive ? styles.navLabelActive : null]}>Buscar</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.navFab} activeOpacity={0.8} onPress={onAddPress}>
@@ -128,6 +131,7 @@ export default function HomeScreen({
 }: HomeScreenProps) {
   const [saveLinkOpen, setSaveLinkOpen] = React.useState(false);
   const [saveFileOpen, setSaveFileOpen] = React.useState(false);
+  const [searchOpen, setSearchOpen] = React.useState(false);
   const [selectedItemId, setSelectedItemId] = React.useState<string | null>(null);
 
   const [resources, setResources] = React.useState<ContentCardData[]>([]);
@@ -324,7 +328,7 @@ export default function HomeScreen({
         ListFooterComponent={loadingMore ? <ActivityIndicator color={colors.salmon} /> : null}
       />
 
-      <NavBar onAddPress={handleFabPress} />
+      <NavBar onAddPress={handleFabPress} onSearchPress={() => setSearchOpen(true)} searchActive={searchOpen} />
 
       <SaveLinkFlow
         visible={saveLinkOpen}
@@ -351,6 +355,12 @@ export default function HomeScreen({
         itemId={selectedItemId}
         onClose={() => setSelectedItemId(null)}
         onUpdated={() => void fetchResources('refresh')}
+      />
+
+      <SearchScreen
+        visible={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        onOpenDetail={(itemId) => setSelectedItemId(itemId)}
       />
     </SafeAreaView>
   );
