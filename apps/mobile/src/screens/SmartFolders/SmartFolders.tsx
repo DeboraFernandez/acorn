@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 
 import { supabase } from '../../../lib/supabase';
+import { Button } from '../../components/Button/Button';
+import { SmartFolderBuilder } from '../SmartFolderBuilder/SmartFolderBuilder';
 import { styles } from './SmartFolders.styles';
 
 type SmartFolderRule = {
@@ -76,6 +78,7 @@ export function SmartFolders({ visible, onClose }: SmartFoldersProps) {
   const [refreshing, setRefreshing] = React.useState(false);
   const [error, setError] = React.useState('');
   const [folders, setFolders] = React.useState<SmartFolderView[]>([]);
+  const [builderOpen, setBuilderOpen] = React.useState(false);
 
   const fetchFolders = React.useCallback(
     async (mode: 'initial' | 'refresh') => {
@@ -168,6 +171,10 @@ export function SmartFolders({ visible, onClose }: SmartFoldersProps) {
 
               <Text style={styles.subtitle}>Listado de carpetas y resumen de reglas activas.</Text>
 
+              <View style={styles.createButtonWrap}>
+                <Button label='Crear carpeta inteligente' onPress={() => setBuilderOpen(true)} />
+              </View>
+
               {error ? <Text style={styles.error}>{error}</Text> : null}
 
               <FlatList
@@ -197,6 +204,12 @@ export function SmartFolders({ visible, onClose }: SmartFoldersProps) {
               />
             </View>
           </TouchableWithoutFeedback>
+
+          <SmartFolderBuilder
+            visible={builderOpen}
+            onClose={() => setBuilderOpen(false)}
+            onCreated={() => void fetchFolders('refresh')}
+          />
         </View>
       </TouchableWithoutFeedback>
     </Modal>
