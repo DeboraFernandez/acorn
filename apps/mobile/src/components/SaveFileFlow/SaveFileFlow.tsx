@@ -8,6 +8,7 @@ import { styles } from './SaveFileFlow.styles';
 type SaveFileFlowProps = {
   visible: boolean;
   onClose: () => void;
+  onSaved?: () => void;
 };
 
 function formatBytes(size: number) {
@@ -24,7 +25,7 @@ function formatBytes(size: number) {
   return `${value.toFixed(unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
 }
 
-export function SaveFileFlow({ visible, onClose }: SaveFileFlowProps) {
+export function SaveFileFlow({ visible, onClose, onSaved }: SaveFileFlowProps) {
   const { pickedFile, loading, progress, saved, error, pickFile, confirmUpload, resetFlow } =
     useSaveFileFlow();
 
@@ -32,6 +33,12 @@ export function SaveFileFlow({ visible, onClose }: SaveFileFlowProps) {
     resetFlow();
     onClose();
   };
+
+  React.useEffect(() => {
+    if (saved) {
+      onSaved?.();
+    }
+  }, [onSaved, saved]);
 
   return (
     <Modal visible={visible} transparent animationType='slide' onRequestClose={handleClose}>
