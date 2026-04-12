@@ -13,6 +13,7 @@ export interface ContentCardProps {
   url?: string;
   thumbnailUri?: string;
   onOpenDetail?: (id: string) => void;
+  onToggleRead?: (id: string, nextRead: boolean) => void;
 }
 
 export function ContentCard({
@@ -25,8 +26,10 @@ export function ContentCard({
   url,
   thumbnailUri,
   onOpenDetail,
+  onToggleRead,
 }: ContentCardProps) {
   const [expanded, setExpanded] = useState(false);
+  const isRead = status === 'Visto';
 
   const handleOpenUrl = () => {
     if (url) Linking.openURL(url);
@@ -76,6 +79,15 @@ export function ContentCard({
               <Text style={styles.statusText}>{status}</Text>
               <Text style={styles.statusIcon}>👁</Text>
             </View>
+            {onToggleRead ? (
+              <TouchableOpacity
+                style={styles.readToggleButton}
+                onPress={() => onToggleRead(id, !isRead)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.readToggleText}>{isRead ? 'Marcar como no visto' : 'Marcar como visto'}</Text>
+              </TouchableOpacity>
+            ) : null}
           </View>
 
           {/* Guardado + Copiar URL */}

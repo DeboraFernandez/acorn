@@ -50,6 +50,7 @@ type ContentCardData = {
   tag: string;
   savedDate: string;
   status: 'No visto' | 'Visto';
+  isRead: boolean;
   url?: string;
   thumbnailUri?: string;
 };
@@ -87,6 +88,7 @@ function mapItem(row: ItemRow): ContentCardData {
     tag: row.tags && row.tags.length > 0 ? `#${row.tags[0]}` : '#recurso',
     savedDate: formatSavedDate(row.created_at),
     status: row.is_read ? 'Visto' : 'No visto',
+    isRead: Boolean(row.is_read),
     url: row.url ?? undefined,
     thumbnailUri: row.og_image_url ?? row.preview_image_url ?? undefined,
   };
@@ -164,6 +166,40 @@ export function SmartFolderView({ visible, folder, onClose, onOpenDetail }: Smar
   const [refreshing, setRefreshing] = React.useState(false);
   const [error, setError] = React.useState('');
   const [resources, setResources] = React.useState<ContentCardData[]>([]);
+
+  const handleToggleRead = async (itemId: string, nextRead: boolean) => {
+    setResources((current) =>
+      current.map((item) =>
+        item.id === itemId
+          ? {
+              ...item,
+              isRead: nextRead,
+              status: nextRead ? 'Visto' : 'No visto',
+            }
+          : item,
+      ),
+    );
+
+    const { error: updateError } = await supabase
+      .from('items')
+      .update({ is_read: nextRead, updated_at: new Date().toISOString() })
+      .eq('id', itemId);
+
+    if (updateError) {
+      setResources((current) =>
+        current.map((item) =>
+          item.id === itemId
+            ? {
+                ...item,
+                isRead: !nextRead,
+                status: !nextRead ? 'Visto' : 'No visto',
+              }
+            : item,
+        ),
+      );
+      setError('No se pudo actualizar el estado de lectura.');
+    }
+  };
 
   const fetchResources = React.useCallback(
     async (mode: 'initial' | 'refresh') => {
@@ -267,6 +303,7 @@ export function SmartFolderView({ visible, folder, onClose, onOpenDetail }: Smar
                 renderItem={({ item }) => (
                   <ContentCard
                     {...item}
+                    onToggleRead={handleToggleRead}
                     onOpenDetail={(itemId) => {
                       onClose();
                       onOpenDetail(itemId);

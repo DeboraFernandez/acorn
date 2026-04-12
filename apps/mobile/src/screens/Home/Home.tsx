@@ -33,6 +33,7 @@ type ContentCardData = {
   tag: string;
   savedDate: string;
   status: 'No visto' | 'Visto';
+  isRead: boolean;
   url?: string;
   thumbnailUri?: string;
 };
@@ -94,6 +95,7 @@ function mapResource(row: ResourceRow): ContentCardData {
     tag: row.tags && row.tags.length > 0 ? `#${row.tags[0]}` : '#recurso',
     savedDate: formatSavedDate(row.created_at),
     status: row.is_read ? 'Visto' : 'No visto',
+    isRead: Boolean(row.is_read),
     url: row.url ?? undefined,
     thumbnailUri: row.og_image_url ?? row.preview_image_url ?? undefined,
   };
@@ -262,6 +264,41 @@ export default function HomeScreen({
   const featured = resources.length > 0 ? resources[0] : null;
   const listData = resources.length > 1 ? resources.slice(1) : [];
 
+  const handleToggleRead = async (itemId: string, nextRead: boolean) => {
+    setResources((current) =>
+      current.map((item) =>
+        item.id === itemId
+          ? {
+              ...item,
+              isRead: nextRead,
+              status: nextRead ? 'Visto' : 'No visto',
+            }
+          : item,
+      ),
+    );
+
+    const { error } = await supabase
+      .from('items')
+      .update({ is_read: nextRead, updated_at: new Date().toISOString() })
+      .eq('id', itemId);
+
+    if (error) {
+      setResources((current) =>
+        current.map((item) =>
+          item.id === itemId
+            ? {
+                ...item,
+                isRead: !nextRead,
+                status: !nextRead ? 'Visto' : 'No visto',
+              }
+            : item,
+        ),
+      );
+      setListError('No se pudo actualizar el estado de lectura.');
+      return;
+    }
+  };
+
   const renderHeader = () => (
     <>
       <ImageBackground
@@ -286,7 +323,7 @@ export default function HomeScreen({
 
           {featured ? (
             <View style={styles.featuredCard}>
-              <ContentCard {...featured} onOpenDetail={setSelectedItemId} />
+              <ContentCard {...featured} onOpenDetail={setSelectedItemId} onToggleRead={handleToggleRead} />
             </View>
           ) : null}
         </View>
@@ -335,7 +372,9 @@ export default function HomeScreen({
         keyExtractor={(item) => item.id}
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={renderEmpty}
-        renderItem={({ item }) => <ContentCard {...item} onOpenDetail={setSelectedItemId} />}
+        renderItem={({ item }) => (
+          <ContentCard {...item} onOpenDetail={setSelectedItemId} onToggleRead={handleToggleRead} />
+        )}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={() => void fetchResources('refresh')} />
         }
