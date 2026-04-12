@@ -135,5 +135,14 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.brown,
     textDecorationLine: 'underline',
+  },
+  readToggleButton: {
+    marginLeft: 'auto',
+  },
+  readToggleText: {
+    fontFamily: 'Satoshi-Regular',
+    fontSize: 12,
+    color: colors.salmon,
+    textDecorationLine: 'underline',
   }
 });
