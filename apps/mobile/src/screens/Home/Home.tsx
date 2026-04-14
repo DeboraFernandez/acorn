@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-
+import { Feather } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { supabase } from '../../../lib/supabase';
@@ -134,7 +134,9 @@ function NavBar({
 
       <TouchableOpacity style={styles.navItem} activeOpacity={0.7} onPress={onSmartFoldersPress}>
         <Text style={styles.navIconPlaceholder}>◯</Text>
-        <Text style={[styles.navLabel, smartFoldersActive ? styles.navLabelActive : null]}>Carpetas IA</Text>
+        <Text style={[styles.navLabel, smartFoldersActive ? styles.navLabelActive : null]}>
+          Carpetas IA
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -162,21 +164,44 @@ export default function HomeScreen({
   const [refreshing, setRefreshing] = React.useState(false);
   const [listError, setListError] = React.useState('');
 
+  // Refs para evitar que fetchResources se recree en cada render
+  const hasMoreRef = React.useRef(hasMore);
+  const nextCursorRef = React.useRef(nextCursor);
+  const loadingMoreRef = React.useRef(loadingMore);
+  const loadingInitialRef = React.useRef(loadingInitial);
+  const refreshingRef = React.useRef(refreshing);
+
+  React.useEffect(() => {
+    hasMoreRef.current = hasMore;
+  }, [hasMore]);
+  React.useEffect(() => {
+    nextCursorRef.current = nextCursor;
+  }, [nextCursor]);
+  React.useEffect(() => {
+    loadingMoreRef.current = loadingMore;
+  }, [loadingMore]);
+  React.useEffect(() => {
+    loadingInitialRef.current = loadingInitial;
+  }, [loadingInitial]);
+  React.useEffect(() => {
+    refreshingRef.current = refreshing;
+  }, [refreshing]);
+
   const fetchResources = React.useCallback(
     async (mode: 'initial' | 'refresh' | 'loadMore') => {
-      if (mode === 'loadMore' && (!hasMore || loadingMore || loadingInitial || refreshing)) {
+      if (
+        mode === 'loadMore' &&
+        (!hasMoreRef.current ||
+          loadingMoreRef.current ||
+          loadingInitialRef.current ||
+          refreshingRef.current)
+      ) {
         return;
       }
 
-      if (mode === 'initial') {
-        setLoadingInitial(true);
-      }
-      if (mode === 'refresh') {
-        setRefreshing(true);
-      }
-      if (mode === 'loadMore') {
-        setLoadingMore(true);
-      }
+      if (mode === 'initial') setLoadingInitial(true);
+      if (mode === 'refresh') setRefreshing(true);
+      if (mode === 'loadMore') setLoadingMore(true);
 
       setListError('');
 
@@ -199,8 +224,8 @@ export default function HomeScreen({
         .order('created_at', { ascending: false })
         .limit(PAGE_SIZE);
 
-      if (mode === 'loadMore' && nextCursor) {
-        query = query.lt('created_at', nextCursor);
+      if (mode === 'loadMore' && nextCursorRef.current) {
+        query = query.lt('created_at', nextCursorRef.current);
       }
 
       const { data, error } = await query;
@@ -231,14 +256,17 @@ export default function HomeScreen({
       }
 
       setHasMore(mapped.length === PAGE_SIZE);
-      setNextCursor(mapped.length > 0 ? ((data ?? []) as ResourceRow[])[mapped.length - 1].created_at : null);
+      setNextCursor(
+        mapped.length > 0 ? ((data ?? []) as ResourceRow[])[mapped.length - 1].created_at : null,
+      );
     },
-    [hasMore, loadingMore, loadingInitial, refreshing, nextCursor],
+    [], // sin dependencias — no se recrea nunca
   );
 
+  // Solo se dispara al montar
   React.useEffect(() => {
     void fetchResources('initial');
-  }, [fetchResources]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   React.useEffect(() => {
     if (sharedUrl) {
@@ -248,18 +276,9 @@ export default function HomeScreen({
 
   const handleFabPress = () => {
     Alert.alert('Guardar recurso', 'Elige el tipo de contenido que quieres guardar', [
-      {
-        text: 'Enlace',
-        onPress: () => setSaveLinkOpen(true),
-      },
-      {
-        text: 'Archivo',
-        onPress: () => setSaveFileOpen(true),
-      },
-      {
-        text: 'Cancelar',
-        style: 'cancel',
-      },
+      { text: 'Enlace', onPress: () => setSaveLinkOpen(true) },
+      { text: 'Archivo', onPress: () => setSaveFileOpen(true) },
+      { text: 'Cancelar', style: 'cancel' },
     ]);
   };
 
@@ -270,11 +289,7 @@ export default function HomeScreen({
     setResources((current) =>
       current.map((item) =>
         item.id === itemId
-          ? {
-              ...item,
-              isRead: nextRead,
-              status: nextRead ? 'Visto' : 'No visto',
-            }
+          ? { ...item, isRead: nextRead, status: nextRead ? 'Visto' : 'No visto' }
           : item,
       ),
     );
@@ -288,16 +303,11 @@ export default function HomeScreen({
       setResources((current) =>
         current.map((item) =>
           item.id === itemId
-            ? {
-                ...item,
-                isRead: !nextRead,
-                status: !nextRead ? 'Visto' : 'No visto',
-              }
+            ? { ...item, isRead: !nextRead, status: !nextRead ? 'Visto' : 'No visto' }
             : item,
         ),
       );
       setListError('No se pudo actualizar el estado de lectura.');
-      return;
     }
   };
 
@@ -308,32 +318,64 @@ export default function HomeScreen({
         style={styles.heroContainer}
         imageStyle={styles.heroImage}
       >
-        <View style={styles.heroInner}>
-          <View style={styles.header}>
-            <View style={styles.headerLogo}>
-              <Image source={require('../../../assets/icon.png')} style={styles.logoImage} resizeMode='contain' />
-            </View>
-            <TouchableOpacity style={styles.headerAvatar} activeOpacity={0.8} onPress={() => setProfileOpen(true)}>
-              <View style={styles.avatarCircle} />
-            </TouchableOpacity>
+        <View style={styles.header}>
+          <View style={styles.headerLogo}>
+            <Image
+              source={require('../../../assets/icon.png')}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
           </View>
-
-          <View style={styles.greetingSection}>
-            <Text style={styles.greetingSubtitle}>Hola {userName}</Text>
-            <Text style={styles.greetingTitle}>{greeting}</Text>
-          </View>
-
-          {featured ? (
-            <View style={styles.featuredCard}>
-              <ContentCard {...featured} onOpenDetail={setSelectedItemId} onToggleRead={handleToggleRead} />
-            </View>
-          ) : null}
+          <TouchableOpacity
+            style={styles.headerAvatar}
+            activeOpacity={0.8}
+            onPress={() => setProfileOpen(true)}
+          >
+            <Image
+              source={require('../../../assets/default-avatar.png')}
+              style={styles.avatarImage}
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
         </View>
+
+        <View style={styles.greetingSection}>
+          <Text style={styles.greetingSubtitle}>Hola {userName}</Text>
+          <Text style={styles.greetingTitle}>{greeting}</Text>
+        </View>
+
+        {featured ? (
+          <View style={styles.featuredCard}>
+            <ContentCard
+              {...featured}
+              onOpenDetail={setSelectedItemId}
+              onToggleRead={handleToggleRead}
+            />
+          </View>
+        ) : !loadingInitial ? (
+          <View style={styles.featuredCard}>
+            <ContentCard
+              id="onboarding-how-to"
+              title="Cómo usar Acorn"
+              source="Guía"
+              tag="#ayuda"
+              savedDate="Hoy"
+              status="No visto"
+              thumbnailUri="../../../assets/default-avatar.png"
+              onOpenDetail={() => {}}
+              onToggleRead={() => {}}
+            />
+          </View>
+        ) : null}
       </ImageBackground>
 
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Tus recursos</Text>
-        <Text style={styles.sectionSubtitle}>Ordenados por fecha de guardado</Text>
+        {resources.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Tus recursos</Text>
+            <Text style={styles.sectionSubtitle}>Ordenados por fecha de guardado</Text>
+          </>
+        )}
       </View>
 
       {listError ? <Text style={styles.listError}>{listError}</Text> : null}
@@ -350,23 +392,22 @@ export default function HomeScreen({
       );
     }
 
-    if (resources.length > 0) {
-      return null;
-    }
+    if (resources.length > 0) return null;
 
     return (
       <View style={styles.emptyState}>
-        <Text style={styles.emptyTitle}>Todavia no has guardado recursos</Text>
-        <Text style={styles.emptySubtitle}>Empieza guardando tu primer enlace o archivo.</Text>
-        <Button label='Guardar primer recurso' onPress={() => setSaveLinkOpen(true)} />
+        <Text style={styles.emptyTitle}>¡Es hora de empezar a explorar!</Text>
+        <Text style={styles.sectionSubtitle}>
+          Guarda tu primer enlace o contenido desde tu aplicación o web favorita. Aprieta el botón
+          "Guardar enlace" para almacenar tu primer contenido digital.
+        </Text>
       </View>
     );
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle='dark-content' backgroundColor={colors.background} />
-
+      <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
       <FlatList
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
@@ -378,12 +419,29 @@ export default function HomeScreen({
           <ContentCard {...item} onOpenDetail={setSelectedItemId} onToggleRead={handleToggleRead} />
         )}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={() => void fetchResources('refresh')} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => void fetchResources('refresh')}
+          />
         }
         onEndReachedThreshold={0.4}
         onEndReached={() => void fetchResources('loadMore')}
         ListFooterComponent={loadingMore ? <ActivityIndicator color={colors.salmon} /> : null}
       />
+      <ImageBackground
+        source={require('../../../assets/bottom-home-noise-gradient.png')}
+        style={styles.bottomGradient}
+        imageStyle={styles.bottomGradientImage}
+      />
+      {!loadingInitial && resources.length === 0 && (
+        <View style={styles.emptyImageContainer}>
+          <Image
+            source={require('../../../assets/acorn-empty-state.png')}
+            style={styles.emptyImage}
+            resizeMode="contain"
+          />
+        </View>
+      )}
 
       <NavBar
         onAddPress={handleFabPress}

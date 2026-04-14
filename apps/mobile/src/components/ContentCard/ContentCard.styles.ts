@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
     borderRadius: 15,
     shadowColor: colors.salmon,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,  // ← esto faltaba
+    shadowOpacity: 0.25, // ← esto faltaba
     shadowRadius: 4,
     elevation: 3,
   },
@@ -97,7 +97,6 @@ export const styles = StyleSheet.create({
     paddingBottom: 16,
   },
 
-
   // Meta info
   metaRow: {
     flexDirection: 'row',
@@ -117,7 +116,6 @@ export const styles = StyleSheet.create({
     color: colors.brown,
     letterSpacing: -0.12,
   },
-
 
   // Copiar URL
   copyUrlButton: {
@@ -144,5 +142,5 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.salmon,
     textDecorationLine: 'underline',
-  }
+  },
 });

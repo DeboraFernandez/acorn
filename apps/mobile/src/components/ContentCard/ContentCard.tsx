@@ -71,7 +71,6 @@ export function ContentCard({
       {/* Sección expandida */}
       {expanded && (
         <View style={styles.expandedSection}>
-
           {/* Estado */}
           <View style={styles.metaRow}>
             <Text style={styles.metaLabel}>Estado:</Text>
@@ -85,7 +84,9 @@ export function ContentCard({
                 onPress={() => onToggleRead(id, !isRead)}
                 activeOpacity={0.7}
               >
-                <Text style={styles.readToggleText}>{isRead ? 'Marcar como no visto' : 'Marcar como visto'}</Text>
+                <Text style={styles.readToggleText}>
+                  {isRead ? 'Marcar como no visto' : 'Marcar como visto'}
+                </Text>
               </TouchableOpacity>
             ) : null}
           </View>
@@ -105,10 +106,7 @@ export function ContentCard({
           </View>
 
           {/* Botón abrir enlace */}
-          <Button
-            label="Abrir enlace original"
-            onPress={() => url && Linking.openURL(url)}
-          />
+          <Button label="Abrir enlace original" onPress={() => url && Linking.openURL(url)} />
           {onOpenDetail ? <Button label="Ver detalle" onPress={() => onOpenDetail(id)} /> : null}
         </View>
       )}
