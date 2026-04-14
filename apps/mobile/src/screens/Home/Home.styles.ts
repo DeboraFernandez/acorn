@@ -1,5 +1,5 @@
-import { colors } from "../../theme/colors";
-import {  StyleSheet} from 'react-native';
+import { colors } from '../../theme/colors';
+import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
   safeArea: {
@@ -11,63 +11,49 @@ export const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 20,
+    paddingHorizontal: 16,
+    gap: 30,
   },
   heroInner: {
+    position: 'relative',
     flex: 1,
-marginHorizontal: 8,
-    paddingTop: 14,
-    paddingBottom: 18,
-    justifyContent: 'flex-end',  // ← añade esto
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   // ── Hero ──
   heroContainer: {
-    marginHorizontal: 16,
     marginBottom: 24,
-    borderRadius: 20,
-    height: 360,  // ← fijo
+    borderRadius: 30,
+    overflow: 'hidden',
     shadowColor: colors.salmon,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
+    shadowOffset: { width: 0, height: 9 },
+    shadowOpacity: 0.25,
     shadowRadius: 12,
     elevation: 8,
   },
   heroImage: {
     resizeMode: 'cover',
-    borderRadius: 20,
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    width: '150%',
+    left: '-25%',
   },
 
   // ── Header ──
   header: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
+    paddingVertical: 30,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 12,
+    paddingHorizontal: 35,
     zIndex: 10,
+    elevation: 8,
   },
   headerLogo: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   logoImage: {
-    width: 80,
+    width: 100,
     aspectRatio: 3,
-  },
-  headerLogoText: {
-    fontFamily: 'CabinetGrotesk-Bold',
-    fontSize: 22,
-    color: colors.white,
-    letterSpacing: -0.8,
   },
   headerAvatar: {
     width: 44,
@@ -75,45 +61,49 @@ marginHorizontal: 8,
     borderRadius: 22,
     overflow: 'hidden',
   },
-  avatarCircle: {
+  avatarImage: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: colors.salmon,
-    opacity: 0.4,
   },
 
   // ── Saludo ──
   greetingSection: {
     alignItems: 'center',
-    paddingVertical: 16,
+    justifyContent: 'center',
+    paddingTop: 50,
+    paddingBottom: 16,
+    paddingHorizontal: 20,
   },
   greetingSubtitle: {
     fontFamily: 'CabinetGrotesk-Regular',
     fontSize: 16,
-    color: colors.white,
+    color: colors.brown,
     letterSpacing: 0.32,
     marginBottom: 4,
     opacity: 0.8,
+    fontWeight: '400',
   },
   greetingTitle: {
     fontFamily: 'CabinetGrotesk-Bold',
     fontSize: 35,
-    color: colors.white,
+    color: colors.brown,
     lineHeight: 42,
     textAlign: 'center',
+    fontWeight: '700',
   },
 
   // ── Featured card ──
   featuredCard: {
-    marginTop: 8,
+    width: '100%',
+    paddingHorizontal: 20,
+    paddingVertical: 30,
+    paddingBottom: 16,
   },
 
   // ── Sección ──
   sectionHeader: {
-    paddingHorizontal: 20,
-    marginBottom: 16,
-    alignItems: 'center',
+    position: 'relative',
   },
   sectionTitle: {
     fontFamily: 'CabinetGrotesk-Bold',
@@ -145,24 +135,51 @@ marginHorizontal: 8,
   },
   emptyState: {
     marginHorizontal: 20,
-    marginTop: 24,
-    marginBottom: 24,
+    marginTop: 10,
     alignItems: 'center',
     gap: 10,
   },
   emptyTitle: {
     fontFamily: 'CabinetGrotesk-Bold',
-    fontSize: 22,
+    fontSize: 25,
+    top: -20,
     color: colors.black,
     textAlign: 'center',
+    fontWeight: '700',
   },
   emptySubtitle: {
     fontFamily: 'Satoshi-Regular',
-    fontSize: 14,
+    fontSize: 15,
     color: colors.brownMid,
     textAlign: 'center',
+    fontWeight: '400',
   },
 
+  // ── Bottom gradient ──
+  bottomGradient: {
+    position: 'absolute',
+    bottom: 70,
+    left: 0,
+    right: 0,
+    height: 350,
+    zIndex: -1,
+    pointerEvents: 'none',
+  },
+  bottomGradientImage: {
+    resizeMode: 'stretch',
+    minHeight: '100%',
+  },
+  emptyImageContainer: {
+    position: 'absolute',
+    bottom: 40,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
+  emptyImage: {
+    width: 200,
+    height: 200,
+  },
   // ── NavBar ──
   navbar: {
     flexDirection: 'row',
@@ -175,6 +192,7 @@ marginHorizontal: 8,
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
+    zIndex: 10,
     elevation: 10,
   },
   navItem: {
@@ -195,7 +213,6 @@ marginHorizontal: 8,
   navLabelActive: {
     color: colors.salmon,
   },
-
   navFab: {
     width: 52,
     height: 52,
