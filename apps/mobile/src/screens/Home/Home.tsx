@@ -11,12 +11,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Feather } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { supabase } from '../../../lib/supabase';
-import { Button } from '../../components/Button/Button';
 import { ContentCard } from '../../components/ContentCard/ContentCard';
+import { NavBar } from '../../components/NavBar/NavBar';
 import { SaveFileFlow } from '../../components/SaveFileFlow/SaveFileFlow';
 import { SaveLinkFlow } from '../../components/SaveLinkFlow/SaveLinkFlow';
 import { ItemDetail } from '../ItemDetail/ItemDetail';
@@ -58,16 +57,6 @@ type HomeScreenProps = {
   onSharedUrlHandled?: () => void;
 };
 
-type NavBarProps = {
-  onAddPress: () => void;
-  onSearchPress: () => void;
-  onTagsPress: () => void;
-  onSmartFoldersPress: () => void;
-  searchActive: boolean;
-  tagsActive: boolean;
-  smartFoldersActive: boolean;
-};
-
 const PAGE_SIZE = 12;
 
 function formatSavedDate(isoDate: string) {
@@ -102,46 +91,6 @@ function mapResource(row: ResourceRow): ContentCardData {
   };
 }
 
-function NavBar({
-  onAddPress,
-  onSearchPress,
-  onTagsPress,
-  onSmartFoldersPress,
-  searchActive,
-  tagsActive,
-  smartFoldersActive,
-}: NavBarProps) {
-  return (
-    <View style={styles.navbar}>
-      <TouchableOpacity style={styles.navItem} activeOpacity={0.7}>
-        <Text style={styles.navIconPlaceholder}>⌂</Text>
-        <Text style={[styles.navLabel, styles.navLabelActive]}>Inicio</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.navItem} activeOpacity={0.7} onPress={onSearchPress}>
-        <Text style={styles.navIconPlaceholder}>⌕</Text>
-        <Text style={[styles.navLabel, searchActive ? styles.navLabelActive : null]}>Buscar</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.navFab} activeOpacity={0.8} onPress={onAddPress}>
-        <Text style={styles.navFabIcon}>＋</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.navItem} activeOpacity={0.7} onPress={onTagsPress}>
-        <Text style={styles.navIconPlaceholder}>⊟</Text>
-        <Text style={[styles.navLabel, tagsActive ? styles.navLabelActive : null]}>Etiquetas</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.navItem} activeOpacity={0.7} onPress={onSmartFoldersPress}>
-        <Text style={styles.navIconPlaceholder}>◯</Text>
-        <Text style={[styles.navLabel, smartFoldersActive ? styles.navLabelActive : null]}>
-          Carpetas IA
-        </Text>
-      </TouchableOpacity>
-    </View>
-  );
-}
-
 export default function HomeScreen({
   userName = 'Usuario',
   greeting = 'Buenos dias',
@@ -164,7 +113,6 @@ export default function HomeScreen({
   const [refreshing, setRefreshing] = React.useState(false);
   const [listError, setListError] = React.useState('');
 
-  // Refs para evitar que fetchResources se recree en cada render
   const hasMoreRef = React.useRef(hasMore);
   const nextCursorRef = React.useRef(nextCursor);
   const loadingMoreRef = React.useRef(loadingMore);
@@ -187,91 +135,85 @@ export default function HomeScreen({
     refreshingRef.current = refreshing;
   }, [refreshing]);
 
-  const fetchResources = React.useCallback(
-    async (mode: 'initial' | 'refresh' | 'loadMore') => {
-      if (
-        mode === 'loadMore' &&
-        (!hasMoreRef.current ||
-          loadingMoreRef.current ||
-          loadingInitialRef.current ||
-          refreshingRef.current)
-      ) {
-        return;
-      }
+  const fetchResources = React.useCallback(async (mode: 'initial' | 'refresh' | 'loadMore') => {
+    if (
+      mode === 'loadMore' &&
+      (!hasMoreRef.current ||
+        loadingMoreRef.current ||
+        loadingInitialRef.current ||
+        refreshingRef.current)
+    ) {
+      return;
+    }
 
-      if (mode === 'initial') setLoadingInitial(true);
-      if (mode === 'refresh') setRefreshing(true);
-      if (mode === 'loadMore') setLoadingMore(true);
+    if (mode === 'initial') setLoadingInitial(true);
+    if (mode === 'refresh') setRefreshing(true);
+    if (mode === 'loadMore') setLoadingMore(true);
 
-      setListError('');
+    setListError('');
 
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-      if (!user) {
-        setListError('Debes iniciar sesion para ver tus recursos.');
-        setLoadingInitial(false);
-        setRefreshing(false);
-        setLoadingMore(false);
-        return;
-      }
-
-      let query = supabase
-        .from('items_with_links')
-        .select('id,title,is_read,created_at,url,domain,preview_image_url,og_image_url,tags')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(PAGE_SIZE);
-
-      if (mode === 'loadMore' && nextCursorRef.current) {
-        query = query.lt('created_at', nextCursorRef.current);
-      }
-
-      const { data, error } = await query;
-
+    if (!user) {
+      setListError('Debes iniciar sesion para ver tus recursos.');
       setLoadingInitial(false);
       setRefreshing(false);
       setLoadingMore(false);
+      return;
+    }
 
-      if (error) {
-        setListError('No se pudieron cargar los recursos. Intenta refrescar.');
-        return;
-      }
+    let query = supabase
+      .from('items_with_links')
+      .select('id,title,is_read,created_at,url,domain,preview_image_url,og_image_url,tags')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(PAGE_SIZE);
 
-      const mapped = ((data ?? []) as ResourceRow[]).map(mapResource);
+    if (mode === 'loadMore' && nextCursorRef.current) {
+      query = query.lt('created_at', nextCursorRef.current);
+    }
 
-      if (mode === 'loadMore') {
-        setResources((previous) => {
-          const merged = [...previous, ...mapped];
-          const seen = new Set<string>();
-          return merged.filter((item) => {
-            if (seen.has(item.id)) return false;
-            seen.add(item.id);
-            return true;
-          });
+    const { data, error } = await query;
+
+    setLoadingInitial(false);
+    setRefreshing(false);
+    setLoadingMore(false);
+
+    if (error) {
+      setListError('No se pudieron cargar los recursos. Intenta refrescar.');
+      return;
+    }
+
+    const mapped = ((data ?? []) as ResourceRow[]).map(mapResource);
+
+    if (mode === 'loadMore') {
+      setResources((previous) => {
+        const merged = [...previous, ...mapped];
+        const seen = new Set<string>();
+        return merged.filter((item) => {
+          if (seen.has(item.id)) return false;
+          seen.add(item.id);
+          return true;
         });
-      } else {
-        setResources(mapped);
-      }
+      });
+    } else {
+      setResources(mapped);
+    }
 
-      setHasMore(mapped.length === PAGE_SIZE);
-      setNextCursor(
-        mapped.length > 0 ? ((data ?? []) as ResourceRow[])[mapped.length - 1].created_at : null,
-      );
-    },
-    [], // sin dependencias — no se recrea nunca
-  );
+    setHasMore(mapped.length === PAGE_SIZE);
+    setNextCursor(
+      mapped.length > 0 ? ((data ?? []) as ResourceRow[])[mapped.length - 1].created_at : null,
+    );
+  }, []);
 
-  // Solo se dispara al montar
   React.useEffect(() => {
     void fetchResources('initial');
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   React.useEffect(() => {
-    if (sharedUrl) {
-      setSaveLinkOpen(true);
-    }
+    if (sharedUrl) setSaveLinkOpen(true);
   }, [sharedUrl]);
 
   const handleFabPress = () => {
