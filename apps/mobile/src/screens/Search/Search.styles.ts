@@ -9,7 +9,8 @@ export const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   panel: {
-    maxHeight: '92%',
+    flex: 1,
+    maxHeight: '92%', // puedes quitarlo también, ya no es un modal
     backgroundColor: colors.background,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,

@@ -3,17 +3,20 @@ import {
   ActivityIndicator,
   FlatList,
   Linking,
-  Modal,
   Text,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 
 import { supabase } from '../../../lib/supabase';
 import { Button } from '../../components/Button/Button';
-import { DateFilterValue, FilterPanel, ReadFilterValue } from '../../components/FilterPanel/FilterPanel';
+import {
+  DateFilterValue,
+  FilterPanel,
+  ReadFilterValue,
+} from '../../components/FilterPanel/FilterPanel';
 import { styles } from './Search.styles';
 
 type SearchResult = {
@@ -39,8 +42,6 @@ type SearchRow = {
 };
 
 type SearchScreenProps = {
-  visible: boolean;
-  onClose: () => void;
   onOpenDetail: (itemId: string) => void;
 };
 
@@ -61,30 +62,21 @@ function mapSearchResult(row: SearchRow): SearchResult {
 }
 
 function applyDateFilter(createdAt: string, filter: DateFilterValue) {
-  if (filter === 'all') {
-    return true;
-  }
+  if (filter === 'all') return true;
 
   const createdTime = new Date(createdAt).getTime();
-  if (Number.isNaN(createdTime)) {
-    return false;
-  }
+  if (Number.isNaN(createdTime)) return false;
 
   const dayToMs = 24 * 60 * 60 * 1000;
   const now = Date.now();
 
-  if (filter === '7d') {
-    return createdTime >= now - 7 * dayToMs;
-  }
-
-  if (filter === '30d') {
-    return createdTime >= now - 30 * dayToMs;
-  }
-
+  if (filter === '7d') return createdTime >= now - 7 * dayToMs;
+  if (filter === '30d') return createdTime >= now - 30 * dayToMs;
   return createdTime >= now - 365 * dayToMs;
 }
 
-export function SearchScreen({ visible, onClose, onOpenDetail }: SearchScreenProps) {
+export function SearchScreen({ onOpenDetail }: SearchScreenProps) {
+  const router = useRouter();
   const [query, setQuery] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
@@ -141,16 +133,14 @@ export function SearchScreen({ visible, onClose, onOpenDetail }: SearchScreenPro
   }, []);
 
   const domainOptions = React.useMemo(
-    () => Array.from(new Set(results.map((result) => result.domain).filter(Boolean))).slice(0, 20),
+    () => Array.from(new Set(results.map((r) => r.domain).filter(Boolean))).slice(0, 20),
     [results],
   );
 
   const tagOptions = React.useMemo(
     () =>
       Array.from(
-        new Set(
-          results.flatMap((result) => result.tags.map((tag) => tag.trim()).filter(Boolean)),
-        ),
+        new Set(results.flatMap((r) => r.tags.map((t) => t.trim()).filter(Boolean))),
       ).slice(0, 30),
     [results],
   );
@@ -158,33 +148,22 @@ export function SearchScreen({ visible, onClose, onOpenDetail }: SearchScreenPro
   const filteredResults = React.useMemo(
     () =>
       results.filter((result) => {
-        if (selectedDomain && result.domain !== selectedDomain) {
+        if (selectedDomain && result.domain !== selectedDomain) return false;
+        if (selectedTag && !result.tags.some((t) => t.toLowerCase() === selectedTag.toLowerCase()))
           return false;
-        }
-
-        if (selectedTag && !result.tags.some((tag) => tag.toLowerCase() === selectedTag.toLowerCase())) {
-          return false;
-        }
-
-        if (!applyDateFilter(result.createdAt, selectedDate)) {
-          return false;
-        }
-
-        if (selectedRead === 'read' && !result.isRead) {
-          return false;
-        }
-
-        if (selectedRead === 'unread' && result.isRead) {
-          return false;
-        }
-
+        if (!applyDateFilter(result.createdAt, selectedDate)) return false;
+        if (selectedRead === 'read' && !result.isRead) return false;
+        if (selectedRead === 'unread' && result.isRead) return false;
         return true;
       }),
     [results, selectedDate, selectedDomain, selectedRead, selectedTag],
   );
 
   const hasActiveFilters =
-    selectedDomain !== null || selectedTag !== null || selectedDate !== 'all' || selectedRead !== 'all';
+    selectedDomain !== null ||
+    selectedTag !== null ||
+    selectedDate !== 'all' ||
+    selectedRead !== 'all';
 
   const clearFilters = React.useCallback(() => {
     setSelectedDomain(null);
@@ -194,28 +173,12 @@ export function SearchScreen({ visible, onClose, onOpenDetail }: SearchScreenPro
   }, []);
 
   React.useEffect(() => {
-    if (!visible) {
-      return;
-    }
-
     const timer = setTimeout(() => {
       void runSearch(query);
     }, 260);
 
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [query, runSearch, visible]);
-
-  React.useEffect(() => {
-    if (!visible) {
-      setQuery('');
-      setError('');
-      setResults([]);
-      setLoading(false);
-      clearFilters();
-    }
-  }, [clearFilters, visible]);
+    return () => clearTimeout(timer);
+  }, [query, runSearch]);
 
   const renderEmpty = () => {
     if (loading) {
@@ -231,112 +194,110 @@ export function SearchScreen({ visible, onClose, onOpenDetail }: SearchScreenPro
       return (
         <View style={styles.emptyState}>
           <Text style={styles.emptyTitle}>Escribe para buscar</Text>
-          <Text style={styles.emptySubtitle}>Puedes buscar por titulo, dominio, URL o contenido.</Text>
+          <Text style={styles.emptySubtitle}>
+            Puedes buscar por titulo, dominio, URL o contenido.
+          </Text>
         </View>
       );
     }
 
     return (
       <View style={styles.emptyState}>
-        <Text style={styles.emptyTitle}>{hasActiveFilters ? 'No hay resultados con esos filtros' : 'No hay coincidencias'}</Text>
+        <Text style={styles.emptyTitle}>
+          {hasActiveFilters ? 'No hay resultados con esos filtros' : 'No hay coincidencias'}
+        </Text>
         <Text style={styles.emptySubtitle}>
-          {hasActiveFilters ? 'Prueba a limpiar o combinar otros filtros.' : 'Prueba con otra palabra clave.'}
+          {hasActiveFilters
+            ? 'Prueba a limpiar o combinar otros filtros.'
+            : 'Prueba con otra palabra clave.'}
         </Text>
       </View>
     );
   };
 
   return (
-    <Modal visible={visible} transparent animationType='slide' onRequestClose={onClose}>
-      <TouchableWithoutFeedback onPress={onClose}>
-        <View style={styles.backdrop}>
-          <TouchableWithoutFeedback>
-            <View style={styles.panel}>
-              <View style={styles.headerRow}>
-                <Text style={styles.title}>Buscar</Text>
-                <TouchableOpacity onPress={onClose} activeOpacity={0.8}>
-                  <Text style={styles.closeLabel}>Cerrar</Text>
-                </TouchableOpacity>
+    <View style={styles.panel}>
+      <View style={styles.headerRow}>
+        <TouchableOpacity onPress={() => router.back()} activeOpacity={0.8}>
+          <Text style={styles.closeLabel}>← Volver</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>Buscar</Text>
+      </View>
+
+      <TextInput
+        value={query}
+        onChangeText={setQuery}
+        style={styles.searchInput}
+        autoFocus
+        placeholder="Busca en tus recursos..."
+        placeholderTextColor="#8B8179"
+        returnKeyType="search"
+      />
+
+      {error ? <Text style={styles.error}>{error}</Text> : null}
+
+      <FilterPanel
+        domains={domainOptions}
+        tags={tagOptions}
+        selectedDomain={selectedDomain}
+        selectedTag={selectedTag}
+        selectedDate={selectedDate}
+        selectedRead={selectedRead}
+        onSelectDomain={setSelectedDomain}
+        onSelectTag={setSelectedTag}
+        onSelectDate={setSelectedDate}
+        onSelectRead={setSelectedRead}
+        onClear={clearFilters}
+      />
+
+      {query.trim() ? (
+        <Text style={styles.resultsCounter}>
+          {filteredResults.length} resultados
+          {hasActiveFilters ? ` (de ${results.length} tras aplicar filtros)` : ''}
+        </Text>
+      ) : null}
+
+      <FlatList
+        data={filteredResults}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <View style={styles.resultCard}>
+            <Text style={styles.resultTitle} numberOfLines={2}>
+              {item.title}
+            </Text>
+            <Text style={styles.resultMeta}>{item.domain}</Text>
+            <Text style={styles.resultSnippet} numberOfLines={2}>
+              {item.snippet}
+            </Text>
+
+            <View style={styles.resultActions}>
+              <View style={styles.actionButton}>
+                <Button
+                  label="Ver detalle"
+                  onPress={() => {
+                    router.back();
+                    onOpenDetail(item.id);
+                  }}
+                />
               </View>
-
-              <TextInput
-                value={query}
-                onChangeText={setQuery}
-                style={styles.searchInput}
-                autoFocus
-                placeholder='Busca en tus recursos...'
-                placeholderTextColor='#8B8179'
-                returnKeyType='search'
-              />
-
-              {error ? <Text style={styles.error}>{error}</Text> : null}
-
-              <FilterPanel
-                domains={domainOptions}
-                tags={tagOptions}
-                selectedDomain={selectedDomain}
-                selectedTag={selectedTag}
-                selectedDate={selectedDate}
-                selectedRead={selectedRead}
-                onSelectDomain={setSelectedDomain}
-                onSelectTag={setSelectedTag}
-                onSelectDate={setSelectedDate}
-                onSelectRead={setSelectedRead}
-                onClear={clearFilters}
-              />
-
-              {query.trim() ? (
-                <Text style={styles.resultsCounter}>
-                  {filteredResults.length} resultados
-                  {hasActiveFilters ? ` (de ${results.length} tras aplicar filtros)` : ''}
-                </Text>
-              ) : null}
-
-              <FlatList
-                data={filteredResults}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                  <View style={styles.resultCard}>
-                    <Text style={styles.resultTitle} numberOfLines={2}>
-                      {item.title}
-                    </Text>
-                    <Text style={styles.resultMeta}>{item.domain}</Text>
-                    <Text style={styles.resultSnippet} numberOfLines={2}>
-                      {item.snippet}
-                    </Text>
-
-                    <View style={styles.resultActions}>
-                      <View style={styles.actionButton}>
-                        <Button
-                          label='Ver detalle'
-                          onPress={() => {
-                            onClose();
-                            onOpenDetail(item.id);
-                          }}
-                        />
-                      </View>
-                      <View style={styles.actionButton}>
-                        <Button
-                          label='Abrir URL'
-                          variant='secondary'
-                          onPress={() => {
-                            if (item.url) {
-                              void Linking.openURL(item.url);
-                            }
-                          }}
-                        />
-                      </View>
-                    </View>
-                  </View>
-                )}
-                ListEmptyComponent={renderEmpty}
-                contentContainerStyle={filteredResults.length === 0 ? styles.listEmptyContent : styles.listContent}
-                keyboardShouldPersistTaps='handled'
-              />
+              <View style={styles.actionButton}>
+                <Button
+                  label="Abrir URL"
+                  variant="secondary"
+                  onPress={() => {
+                    if (item.url) void Linking.openURL(item.url);
+                  }}
+                />
+              </View>
             </View>
-          </TouchableWithoutFeedback>
-        </View>
-      </TouchableWithoutFeedback>
-    </Modal>
+          </View>
+        )}
+        ListEmptyComponent={renderEmpty}
+        contentContainerStyle={
+          filteredResults.length === 0 ? styles.listEmptyContent : styles.listContent
+        }
+        keyboardShouldPersistTaps="handled"
+      />
+    </View>
   );
 }
