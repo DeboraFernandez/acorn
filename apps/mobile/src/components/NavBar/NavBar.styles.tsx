@@ -1,32 +1,41 @@
 import { StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
-
+import { Dimensions } from 'react-native';
 export const styles = StyleSheet.create({
   navbar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    backgroundColor: colors.background,
-    paddingTop: 12,
-    paddingBottom: 8,
-    shadowColor: colors.salmon,
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    position: 'relative',
+    width: '100%',
     zIndex: 10,
     elevation: 10,
   },
+  navbarBg: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    top: 0,
+    shadowColor: colors.salmon,
+    shadowOffset: { width: 0, height: -5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+  },
+  innerBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    paddingTop: 18,
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+    width: '100%',
+  },
   navItem: {
     alignItems: 'center',
+    gap: 5,
     width: 60,
   },
-  navIconPlaceholder: {
-    fontSize: 20,
-    color: colors.brownMid,
-    marginBottom: 2,
-  },
+
   navLabel: {
     fontFamily: 'Satoshi-Regular',
+    fontWeight: 400,
     fontSize: 12,
     color: colors.brownMid,
     letterSpacing: 0.28,
@@ -35,13 +44,13 @@ export const styles = StyleSheet.create({
     color: colors.salmon,
   },
   navFab: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 62,
+    height: 62,
+    borderRadius: 366,
     backgroundColor: colors.brownMid,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
+    marginTop: -30,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.16,
