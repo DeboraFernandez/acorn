@@ -19,7 +19,7 @@ import { ContentCard } from '../../components/ContentCard/ContentCard';
 import { SaveFileFlow } from '../../components/SaveFileFlow/SaveFileFlow';
 import { SaveLinkFlow } from '../../components/SaveLinkFlow/SaveLinkFlow';
 import { ItemDetail } from '../ItemDetail/ItemDetail';
-import { SearchScreen } from '../Search/Search';
+import { useRouter } from 'expo-router';
 import { SmartFolders } from '../SmartFolders/SmartFolders';
 import { Profile } from '../Profile/Profile';
 import { TagManagement } from '../TagManagement/TagManagement';
@@ -58,6 +58,7 @@ type HomeScreenProps = {
   greeting?: string;
   sharedUrl?: string | null;
   onSharedUrlHandled?: () => void;
+  onSearchPress?: () => void;
 };
 
 const PAGE_SIZE = 12;
@@ -99,10 +100,11 @@ export default function HomeScreen({
   greeting = 'Buenos dias',
   sharedUrl,
   onSharedUrlHandled,
+  onSearchPress,
 }: HomeScreenProps) {
+  const router = useRouter();
   const [saveLinkOpen, setSaveLinkOpen] = React.useState(false);
   const [saveFileOpen, setSaveFileOpen] = React.useState(false);
-  const [searchOpen, setSearchOpen] = React.useState(false);
   const [tagsOpen, setTagsOpen] = React.useState(false);
   const [smartFoldersOpen, setSmartFoldersOpen] = React.useState(false);
   const [profileOpen, setProfileOpen] = React.useState(false);
@@ -387,16 +389,16 @@ export default function HomeScreen({
         </View>
       )}
 
-      <NavBar
+      {/* <NavBar
         onAddPress={handleFabPress}
-        onSearchPress={() => setSearchOpen(true)}
+        onSearchPress={onSearchPress ?? (() => {})}
+        searchActive={false}
         onTagsPress={() => setTagsOpen(true)}
         onSmartFoldersPress={() => setSmartFoldersOpen(true)}
-        searchActive={searchOpen}
         tagsActive={tagsOpen}
         smartFoldersActive={smartFoldersOpen}
       />
-
+ */}
       <SaveLinkFlow
         visible={saveLinkOpen}
         onClose={() => setSaveLinkOpen(false)}
@@ -422,12 +424,6 @@ export default function HomeScreen({
         itemId={selectedItemId}
         onClose={() => setSelectedItemId(null)}
         onUpdated={() => void fetchResources('refresh')}
-      />
-
-      <SearchScreen
-        visible={searchOpen}
-        onClose={() => setSearchOpen(false)}
-        onOpenDetail={(itemId) => setSelectedItemId(itemId)}
       />
 
       <TagManagement

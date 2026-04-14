@@ -10,6 +10,7 @@ import NavbarBg from '../../../assets/svg/navbar-bg.svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type NavBarProps = {
+  onHomePress: () => void;
   onAddPress: () => void;
   onSearchPress: () => void;
   onTagsPress: () => void;
@@ -20,6 +21,7 @@ type NavBarProps = {
 };
 
 export function NavBar({
+  onHomePress,
   onAddPress,
   onSearchPress,
   onTagsPress,
@@ -34,7 +36,7 @@ export function NavBar({
     <View style={[styles.navbar, { paddingBottom: insets.bottom }]}>
       <NavbarBg style={styles.navbarBg} />
       <View style={styles.innerBar}>
-        <TouchableOpacity style={styles.navItem} activeOpacity={0.7}>
+        <TouchableOpacity style={styles.navItem} activeOpacity={0.7} onPress={onHomePress}>
           <HomeIcon width={24} height={24} />
           <Text style={[styles.navLabel, styles.navLabelActive]}>Inicio</Text>
         </TouchableOpacity>
