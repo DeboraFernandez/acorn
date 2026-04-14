@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  ImageSourcePropType,
   Alert,
   ActivityIndicator,
   FlatList,
@@ -37,6 +38,7 @@ type ContentCardData = {
   isRead: boolean;
   url?: string;
   thumbnailUri?: string;
+  iconSource?: ImageSourcePropType;
 };
 
 type ResourceRow = {
@@ -295,7 +297,7 @@ export default function HomeScreen({
               tag="#ayuda"
               savedDate="Hoy"
               status="No visto"
-              thumbnailUri="../../../assets/default-avatar.png"
+              iconSource={require('../../../assets/acorn-empty-guide.webp')}
               onOpenDetail={() => {}}
               onToggleRead={() => {}}
             />
