@@ -15,7 +15,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { supabase } from '../../../lib/supabase';
 import { ContentCard } from '../../components/ContentCard/ContentCard';
-import { NavBar } from '../../components/NavBar/NavBar';
 import { SaveFileFlow } from '../../components/SaveFileFlow/SaveFileFlow';
 import { SaveLinkFlow } from '../../components/SaveLinkFlow/SaveLinkFlow';
 import { ItemDetail } from '../ItemDetail/ItemDetail';
@@ -25,6 +24,8 @@ import { Profile } from '../Profile/Profile';
 import { TagManagement } from '../TagManagement/TagManagement';
 import { colors } from '../../theme/colors';
 import { styles } from './Home.styles';
+import { NavBar } from '../../components/NavBar/NavBar';
+import AcornEmpty from '../../../assets/svg/acorn-empty-state.svg';
 
 type ContentCardData = {
   id: string;
@@ -142,9 +143,8 @@ export default function HomeScreen({
         loadingMoreRef.current ||
         loadingInitialRef.current ||
         refreshingRef.current)
-    ) {
+    )
       return;
-    }
 
     if (mode === 'initial') setLoadingInitial(true);
     if (mode === 'refresh') setRefreshing(true);
@@ -224,9 +224,9 @@ export default function HomeScreen({
     ]);
   };
 
-  const featured = resources.length > 0 ? resources[0] : null;
-  const listData = resources.length > 1 ? resources.slice(1) : [];
-
+  const featured = resources.length >= 2 ? resources[0] : null;
+  const listData = resources.length >= 2 ? resources.slice(1) : resources;
+  const showOnboarding = !loadingInitial && resources.length <= 1;
   const handleToggleRead = async (itemId: string, nextRead: boolean) => {
     setResources((current) =>
       current.map((item) =>
@@ -256,7 +256,7 @@ export default function HomeScreen({
   const renderHeader = () => (
     <>
       <ImageBackground
-        source={require('../../../assets/noise-home-bg.png')}
+        source={require('../../../assets/noise-home-bg.webp')}
         style={styles.heroContainer}
         imageStyle={styles.heroImage}
       >
@@ -286,15 +286,7 @@ export default function HomeScreen({
           <Text style={styles.greetingTitle}>{greeting}</Text>
         </View>
 
-        {featured ? (
-          <View style={styles.featuredCard}>
-            <ContentCard
-              {...featured}
-              onOpenDetail={setSelectedItemId}
-              onToggleRead={handleToggleRead}
-            />
-          </View>
-        ) : !loadingInitial ? (
+        {showOnboarding ? (
           <View style={styles.featuredCard}>
             <ContentCard
               id="onboarding-how-to"
@@ -306,6 +298,16 @@ export default function HomeScreen({
               thumbnailUri="../../../assets/default-avatar.png"
               onOpenDetail={() => {}}
               onToggleRead={() => {}}
+            />
+          </View>
+        ) : null}
+
+        {featured ? (
+          <View style={styles.featuredCard}>
+            <ContentCard
+              {...featured}
+              onOpenDetail={setSelectedItemId}
+              onToggleRead={handleToggleRead}
             />
           </View>
         ) : null}
@@ -334,21 +336,23 @@ export default function HomeScreen({
       );
     }
 
-    if (resources.length > 0) return null;
+    if (resources.length === 0) {
+      return (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyTitle}>¡Es hora de empezar a explorar!</Text>
+          <Text style={styles.sectionSubtitle}>
+            Guarda tu primer enlace o contenido desde tu aplicación o web favorita. Aprieta el botón
+            "Guardar enlace" para almacenar tu primer contenido digital.
+          </Text>
+        </View>
+      );
+    }
 
-    return (
-      <View style={styles.emptyState}>
-        <Text style={styles.emptyTitle}>¡Es hora de empezar a explorar!</Text>
-        <Text style={styles.sectionSubtitle}>
-          Guarda tu primer enlace o contenido desde tu aplicación o web favorita. Aprieta el botón
-          "Guardar enlace" para almacenar tu primer contenido digital.
-        </Text>
-      </View>
-    );
+    return null;
   };
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
+    <SafeAreaView edges={['top']} style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
       <FlatList
         style={styles.scroll}
@@ -371,17 +375,13 @@ export default function HomeScreen({
         ListFooterComponent={loadingMore ? <ActivityIndicator color={colors.salmon} /> : null}
       />
       <ImageBackground
-        source={require('../../../assets/bottom-home-noise-gradient.png')}
+        source={require('../../../assets/bottom-home-noise-gradient.webp')}
         style={styles.bottomGradient}
         imageStyle={styles.bottomGradientImage}
       />
       {!loadingInitial && resources.length === 0 && (
         <View style={styles.emptyImageContainer}>
-          <Image
-            source={require('../../../assets/acorn-empty-state.png')}
-            style={styles.emptyImage}
-            resizeMode="contain"
-          />
+          <AcornEmpty style={styles.emptyImage} />
         </View>
       )}
 

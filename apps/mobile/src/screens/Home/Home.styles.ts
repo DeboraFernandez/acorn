@@ -33,8 +33,6 @@ export const styles = StyleSheet.create({
   },
   heroImage: {
     resizeMode: 'cover',
-    width: '150%',
-    left: '-25%',
   },
 
   // ── Header ──
@@ -56,15 +54,17 @@ export const styles = StyleSheet.create({
     aspectRatio: 3,
   },
   headerAvatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 54,
+    height: 54,
+    borderRadius: 32,
     overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   avatarImage: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    resizeMode: 'cover',
+    width: '120%',
+    height: '120%',
   },
 
   // ── Saludo ──
