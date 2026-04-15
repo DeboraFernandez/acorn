@@ -57,8 +57,20 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     color: colors.brownMid,
   },
+  // Show Password Icon
+  iconsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
 
   // Mensaje de error
+  errorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 4,
+  },
   errorText: {
     fontFamily: 'Satoshi-Regular',
     fontSize: 16,
