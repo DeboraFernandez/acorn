@@ -1,6 +1,7 @@
-import React, { useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, TextInputProps, Animated } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, TextInputProps } from 'react-native';
 import { styles } from './Input.styles';
+import { Ionicons } from '@expo/vector-icons';
 
 export interface InputProps extends TextInputProps {
   label: string;
@@ -21,7 +22,10 @@ export const Input = React.memo(function Input({
   ...rest
 }: InputProps) {
   const focused = useRef(false);
+  const inputRef = useRef<TextInput>(null);
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const hasError = !!error;
+  const isPassword = secureTextEntry;
 
   return (
     <View style={styles.container}>
@@ -29,6 +33,7 @@ export const Input = React.memo(function Input({
 
       <View style={[styles.inputWrapper, hasError && styles.inputWrapperError]}>
         <TextInput
+          ref={inputRef}
           style={[styles.input, hasError && styles.inputError]}
           value={value}
           onChangeText={onChangeText}
@@ -40,27 +45,51 @@ export const Input = React.memo(function Input({
           }}
           returnKeyType="next"
           placeholder={placeholder}
-          secureTextEntry={secureTextEntry}
+          secureTextEntry={isPassword && !passwordVisible}
           autoCapitalize="none"
           autoCorrect={false}
           underlineColorAndroid="transparent"
           {...rest}
         />
 
-        {showClear && (
-          <View pointerEvents={value.length > 0 ? 'auto' : 'none'}>
+        <View style={styles.iconsRow}>
+          {isPassword && value.length > 0 && (
             <TouchableOpacity
-              style={[styles.clearButton, { opacity: value.length > 0 ? 1 : 0 }]}
-              onPress={() => onChangeText('')}
+              onPress={() => {
+                setPasswordVisible((v) => !v);
+                setTimeout(() => inputRef.current?.focus(), 0);
+              }}
               activeOpacity={0.7}
+              style={styles.clearButton}
             >
-              <Text style={styles.clearIcon}>✕</Text>
+              <Ionicons
+                name={passwordVisible ? 'eye-off-outline' : 'eye-outline'}
+                size={20}
+                color="#888"
+              />
             </TouchableOpacity>
-          </View>
-        )}
+          )}
+
+          {showClear && !isPassword && (
+            <View pointerEvents={value.length > 0 ? 'auto' : 'none'}>
+              <TouchableOpacity
+                style={[styles.clearButton, { opacity: value.length > 0 ? 1 : 0 }]}
+                onPress={() => onChangeText('')}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="close-circle" size={18} color="#888" />
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
       </View>
 
-      {hasError && <Text style={styles.errorText}>* {error}</Text>}
+      {hasError && (
+        <View style={styles.errorRow}>
+          <Ionicons name="alert-circle-outline" size={14} color="#e53e3e" />
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      )}
     </View>
   );
 });
