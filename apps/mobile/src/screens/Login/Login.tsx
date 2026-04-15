@@ -2,11 +2,14 @@ import React from 'react';
 import { View, KeyboardAvoidingView, Platform, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useGoogleOAuth } from '../../hooks/useGoogleOAuth';
-import { useLogin } from '../../hooks/useLogin';
-import { Button } from '../components/Button/Button';
-import { Input } from '../components/Input/Input';
+import { useGoogleOAuth } from '../../../hooks/useGoogleOAuth';
+import { useLogin } from '../../../hooks/useLogin';
+import { Button } from '../../components/Button/Button';
+import { Input } from '../../components/Input/Input';
 import { styles } from './Login.styles';
+
+const EmailInput = Input;
+const PasswordInput = Input;
 
 type LoginScreenProps = {
   onLoginSuccess: () => void;
@@ -37,10 +40,12 @@ export default function LoginScreen({
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={styles.container}>
-          <Text style={styles.title}>Bienvenida de nuevo</Text>
-          <Text style={styles.subtitle}>Inicia sesion para acceder a tu espacio privado</Text>
+          <View style={styles.header}>
+            <Text style={styles.title}>Bienvenida de nuevo</Text>
+            <Text style={styles.subtitle}>Inicia sesion...</Text>
+          </View>
 
-          <Input
+          <EmailInput
             label="Correo electronico"
             value={email}
             onChangeText={setEmail}
@@ -49,8 +54,8 @@ export default function LoginScreen({
             keyboardType="email-address"
           />
 
-          <Input
-            label="Contrasena"
+          <PasswordInput
+            label="Contraseña"
             value={password}
             onChangeText={setPassword}
             error={errors.password}

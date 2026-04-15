@@ -4,5 +4,15 @@
     "strict": true,
     "jsx": "react-native",
     "typeRoots": ["./src/types", "./node_modules/@types"],
+    "baseUrl": ".",
+    "paths": {
+      "@assets/*": ["assets/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@lib/*": ["lib/*"],
+      "@components/*": ["src/components/*"],
+      "@screens/*": ["src/screens/*"],
+      "@themes/*": ["src/theme/*"],
+      "@types/*": ["src/types/*"],
+    },
   },
 }
