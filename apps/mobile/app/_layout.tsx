@@ -7,6 +7,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { Keyboard, TouchableWithoutFeedback, View } from 'react-native';
+
 SplashScreen.preventAutoHideAsync();
 
 function AuthGate() {
@@ -47,7 +49,13 @@ function AuthGate() {
     }
   }, [session, initialized, segments]);
 
-  return <Slot />;
+  return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View style={{ flex: 1 }}>
+        <Slot />
+      </View>
+    </TouchableWithoutFeedback>
+  );
 }
 
 export default function RootLayout() {
