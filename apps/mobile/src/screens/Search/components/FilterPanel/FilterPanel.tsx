@@ -1,24 +1,7 @@
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-
 import { styles } from './FilterPanel.styles';
-
-export type DateFilterValue = 'all' | '7d' | '30d' | '365d';
-export type ReadFilterValue = 'all' | 'unread' | 'read';
-
-type FilterPanelProps = {
-  domains: string[];
-  tags: string[];
-  selectedDomain: string | null;
-  selectedTag: string | null;
-  selectedDate: DateFilterValue;
-  selectedRead: ReadFilterValue;
-  onSelectDomain: (domain: string | null) => void;
-  onSelectTag: (tag: string | null) => void;
-  onSelectDate: (date: DateFilterValue) => void;
-  onSelectRead: (status: ReadFilterValue) => void;
-  onClear: () => void;
-};
+import { FilterPanelProps, DateFilterValue, ReadFilterValue } from '../../types';
 
 type ChipProps = {
   label: string;
@@ -28,11 +11,28 @@ type ChipProps = {
 
 function Chip({ label, active, onPress }: ChipProps) {
   return (
-    <TouchableOpacity style={[styles.chip, active ? styles.chipActive : null]} onPress={onPress} activeOpacity={0.8}>
-      <Text style={[styles.chipText, active ? styles.chipTextActive : null]}>{label}</Text>
+    <TouchableOpacity
+      style={[styles.chip, active && styles.chipActive]}
+      onPress={onPress}
+      activeOpacity={0.8}
+    >
+      <Text style={[styles.chipText, active && styles.chipTextActive]}>{label}</Text>
     </TouchableOpacity>
   );
 }
+
+const DATE_OPTIONS: { label: string; value: DateFilterValue }[] = [
+  { label: 'Todas', value: 'all' },
+  { label: '7 días', value: '7d' },
+  { label: '30 días', value: '30d' },
+  { label: '12 meses', value: '365d' },
+];
+
+const READ_OPTIONS: { label: string; value: ReadFilterValue }[] = [
+  { label: 'Todos', value: 'all' },
+  { label: 'No visto', value: 'unread' },
+  { label: 'Visto', value: 'read' },
+];
 
 export function FilterPanel({
   domains,
@@ -59,7 +59,11 @@ export function FilterPanel({
       <View style={styles.section}>
         <Text style={styles.sectionLabel}>Dominio</Text>
         <View style={styles.chipsWrap}>
-          <Chip label='Todos' active={selectedDomain === null} onPress={() => onSelectDomain(null)} />
+          <Chip
+            label="Todos"
+            active={selectedDomain === null}
+            onPress={() => onSelectDomain(null)}
+          />
           {domains.map((domain) => (
             <Chip
               key={domain}
@@ -74,7 +78,7 @@ export function FilterPanel({
       <View style={styles.section}>
         <Text style={styles.sectionLabel}>Etiqueta</Text>
         <View style={styles.chipsWrap}>
-          <Chip label='Todas' active={selectedTag === null} onPress={() => onSelectTag(null)} />
+          <Chip label="Todas" active={selectedTag === null} onPress={() => onSelectTag(null)} />
           {tags.map((tag) => (
             <Chip
               key={tag}
@@ -89,19 +93,28 @@ export function FilterPanel({
       <View style={styles.section}>
         <Text style={styles.sectionLabel}>Fecha</Text>
         <View style={styles.chipsWrap}>
-          <Chip label='Todas' active={selectedDate === 'all'} onPress={() => onSelectDate('all')} />
-          <Chip label='7 dias' active={selectedDate === '7d'} onPress={() => onSelectDate('7d')} />
-          <Chip label='30 dias' active={selectedDate === '30d'} onPress={() => onSelectDate('30d')} />
-          <Chip label='12 meses' active={selectedDate === '365d'} onPress={() => onSelectDate('365d')} />
+          {DATE_OPTIONS.map((o) => (
+            <Chip
+              key={o.value}
+              label={o.label}
+              active={selectedDate === o.value}
+              onPress={() => onSelectDate(o.value)}
+            />
+          ))}
         </View>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionLabel}>Estado</Text>
         <View style={styles.chipsWrap}>
-          <Chip label='Todos' active={selectedRead === 'all'} onPress={() => onSelectRead('all')} />
-          <Chip label='No visto' active={selectedRead === 'unread'} onPress={() => onSelectRead('unread')} />
-          <Chip label='Visto' active={selectedRead === 'read'} onPress={() => onSelectRead('read')} />
+          {READ_OPTIONS.map((o) => (
+            <Chip
+              key={o.value}
+              label={o.label}
+              active={selectedRead === o.value}
+              onPress={() => onSelectRead(o.value)}
+            />
+          ))}
         </View>
       </View>
     </View>

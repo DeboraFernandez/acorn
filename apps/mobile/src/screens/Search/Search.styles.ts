@@ -1,45 +1,47 @@
 import { StyleSheet } from 'react-native';
-
 import { colors } from '../../theme/colors';
 
 export const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(27, 27, 27, 0.4)',
-    justifyContent: 'flex-end',
-  },
   panel: {
     flex: 1,
-    maxHeight: '92%', // puedes quitarlo también, ya no es un modal
     backgroundColor: colors.background,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingTop: 20,
-    paddingHorizontal: 20,
+    paddingTop: 80,
     paddingBottom: 28,
+  },
+  inner: {
+    paddingHorizontal: 20,
+    gap: 20,
   },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
   },
   title: {
     fontFamily: 'CabinetGrotesk-Bold',
-    fontSize: 24,
+    fontWeight: 600,
+    fontSize: 35,
     color: colors.brown,
   },
-  closeLabel: {
-    fontFamily: 'Satoshi-Bold',
-    fontSize: 14,
-    color: colors.salmon,
+  filterPanel: {
+    position: 'absolute',
+    left: 20,
+    right: 20,
+    zIndex: 10,
+    borderRadius: 16,
+    backgroundColor: colors.white,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
   },
   searchInput: {
     width: '100%',
-    minHeight: 46,
+    minHeight: 50,
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: `${colors.brown}30`,
+    borderWidth: 1.5,
+    borderColor: `${colors.brown}70`,
     backgroundColor: colors.white,
     paddingHorizontal: 14,
     fontFamily: 'Satoshi-Regular',
@@ -60,12 +62,14 @@ export const styles = StyleSheet.create({
     fontSize: 12,
   },
   listContent: {
+    paddingHorizontal: 20,
     paddingTop: 12,
     paddingBottom: 4,
     gap: 10,
   },
   listEmptyContent: {
     flexGrow: 1,
+    paddingHorizontal: 20,
     paddingTop: 12,
     justifyContent: 'center',
   },
