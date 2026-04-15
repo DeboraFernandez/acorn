@@ -1,20 +1,15 @@
 import React from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  ImageBackground,
-  Linking,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, FlatList, ImageBackground, Image, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button } from '../../components/Button/Button';
 import { FilterPanel } from './components/FilterPanel/FilterPanel';
 import { QuickFilters } from './components/QuickFilters/QuickFilters';
 import { styles } from './Search.styles';
 import { useSearch } from './hooks/useSearch';
 import type { SearchResult, SearchScreenProps } from './types';
+import { Input as SearchInput } from '../../components/Input/Input';
+import SearchIcon from '../../../assets/icons/search-icon.svg';
+import { colors } from '../../theme/colors';
+import { ContentCard } from '../../components/ContentCard/ContentCard';
 
 export function SearchScreen({ onBack, onOpenDetail }: SearchScreenProps) {
   const {
@@ -42,7 +37,6 @@ export function SearchScreen({ onBack, onOpenDetail }: SearchScreenProps) {
 
   const insets = useSafeAreaInsets();
   const [showFilterPanel, setShowFilterPanel] = React.useState(false);
-  const [pillsBottom, setPillsBottom] = React.useState(0);
 
   const activeData = query.trim() ? filteredResults : results;
 
@@ -67,48 +61,39 @@ export function SearchScreen({ onBack, onOpenDetail }: SearchScreenProps) {
       return (
         <View style={styles.emptyState}>
           <ActivityIndicator />
-          <Text style={styles.emptyTitle}>Cargando recursos...</Text>
+          <Text style={styles.emptyTitle}>Buscando...</Text>
         </View>
       );
 
     return (
       <View style={styles.emptyState}>
-        <Text style={styles.emptyTitle}>
-          {hasActiveFilters ? 'No hay resultados con esos filtros' : 'No tienes recursos guardados'}
-        </Text>
+        <Text style={styles.emptyTitle}>Aquí no hay nada ... {'\n'}todavía</Text>
         <Text style={styles.emptySubtitle}>
           {hasActiveFilters
             ? 'Prueba a limpiar o combinar otros filtros.'
             : 'Guarda tu primer enlace para verlo aquí.'}
         </Text>
+        <View style={styles.emptyImageContainer}>
+          <Image
+            source={require('../../../assets/search-empty-drawing.png')}
+            style={styles.emptyImage}
+          />
+        </View>
       </View>
     );
   };
 
   const renderItem = ({ item }: { item: SearchResult }) => (
-    <View style={styles.resultCard}>
-      <Text style={styles.resultTitle} numberOfLines={2}>
-        {item.title}
-      </Text>
-      <Text style={styles.resultMeta}>{item.domain}</Text>
-      <Text style={styles.resultSnippet} numberOfLines={2}>
-        {item.snippet}
-      </Text>
-      <View style={styles.resultActions}>
-        <View style={styles.actionButton}>
-          <Button label="Ver detalle" onPress={() => onOpenDetail(item.id)} />
-        </View>
-        <View style={styles.actionButton}>
-          <Button
-            label="Abrir URL"
-            variant="secondary"
-            onPress={() => {
-              if (item.url) void Linking.openURL(item.url);
-            }}
-          />
-        </View>
-      </View>
-    </View>
+    <ContentCard
+      id={item.id}
+      title={item.title}
+      source={item.domain}
+      tag={item.tags && item.tags.length > 0 ? item.tags[0] : 'General'}
+      savedDate={new Date(item.createdAt).toLocaleDateString()}
+      status={item.isRead ? 'Visto' : 'No visto'}
+      url={item.url}
+      onOpenDetail={onOpenDetail}
+    />
   );
 
   return (
@@ -129,49 +114,43 @@ export function SearchScreen({ onBack, onOpenDetail }: SearchScreenProps) {
         <View style={styles.headerRow}>
           <Text style={styles.title}>De vuelta {'\n'}a lo que importa</Text>
         </View>
-        <TextInput
+        <SearchInput
           value={query}
           onChangeText={setQuery}
-          style={styles.searchInput}
           placeholder="Busca en tus recursos..."
-          placeholderTextColor="#8B8179"
-          returnKeyType="search"
+          icon={
+            <SearchIcon
+              width={20}
+              height={20}
+              fill="none"
+              stroke={colors.brownMid}
+              strokeWidth={2}
+            />
+          }
         />
       </View>
 
-      <QuickFilters
-        activeQuickFilter={activeQuickFilter}
-        hasActiveFilters={hasActiveFilters}
-        showFilterPanel={showFilterPanel}
-        onQuickFilter={handleQuickFilter}
-        onToggleFilterPanel={() => setShowFilterPanel((v) => !v)}
-        onLayout={(y, height) => setPillsBottom(y + height)}
-      />
-
+      <View style={{ marginTop: 16 }}>
+        <QuickFilters
+          activeQuickFilter={activeQuickFilter}
+          hasActiveFilters={hasActiveFilters}
+          showFilterPanel={showFilterPanel}
+          onQuickFilter={handleQuickFilter}
+          onToggleFilterPanel={() => setShowFilterPanel((v) => !v)}
+          onLayout={() => {}}
+        />
+      </View>
       <View style={styles.inner}>
         {error ? <Text style={styles.error}>{error}</Text> : null}
         <Text style={styles.resultsCounter}>
-          {activeData.length} resultados
-          {hasActiveFilters ? ` · filtros activos` : ''}
+          {activeData.length == 1
+            ? `${activeData.length} resultado`
+            : `${activeData.length} resultados`}
+          {hasActiveFilters ? ` · Hay filtros activos` : ''}
         </Text>
       </View>
-
-      <FlatList
-        data={activeData}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        ListEmptyComponent={renderEmpty}
-        contentContainerStyle={
-          activeData.length === 0 ? styles.listEmptyContent : styles.listContent
-        }
-        onEndReached={loadMore}
-        onEndReachedThreshold={0.3}
-        ListFooterComponent={loadingMore ? <ActivityIndicator style={{ padding: 16 }} /> : null}
-        keyboardShouldPersistTaps="handled"
-      />
-
       {showFilterPanel && (
-        <View style={[styles.filterPanel, { top: pillsBottom + 8 }]}>
+        <View style={styles.filterPanel}>
           <FilterPanel
             domains={domainOptions}
             tags={tagOptions}
@@ -187,6 +166,24 @@ export function SearchScreen({ onBack, onOpenDetail }: SearchScreenProps) {
           />
         </View>
       )}
+
+      <FlatList
+        data={activeData}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        ListEmptyComponent={renderEmpty}
+        contentContainerStyle={
+          activeData.length === 0 ? styles.listEmptyContent : styles.listContent
+        }
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.3}
+        ListFooterComponent={
+          loadingMore && activeData.length > 0 ? (
+            <ActivityIndicator style={{ padding: 16 }} color={colors.salmon} />
+          ) : null
+        }
+        keyboardShouldPersistTaps="handled"
+      />
     </View>
   );
 }

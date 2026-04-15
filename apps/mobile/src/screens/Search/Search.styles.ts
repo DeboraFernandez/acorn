@@ -1,11 +1,12 @@
 import { StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
+import { fonts } from '../../theme/fonts';
 
 export const styles = StyleSheet.create({
   panel: {
     flex: 1,
     backgroundColor: colors.background,
-    paddingTop: 80,
+    paddingTop: 70,
     paddingBottom: 28,
   },
   inner: {
@@ -18,48 +19,33 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontFamily: 'CabinetGrotesk-Bold',
-    fontWeight: 600,
-    fontSize: 35,
+    fontFamily: fonts.family.title.bold,
+    fontSize: fonts.size.xxl,
     color: colors.brown,
   },
   filterPanel: {
-    position: 'absolute',
-    left: 20,
-    right: 20,
-    zIndex: 10,
+    marginHorizontal: 20,
     borderRadius: 16,
     backgroundColor: colors.white,
-    shadowColor: '#000',
+    shadowColor: colors.salmon,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 8,
   },
-  searchInput: {
-    width: '100%',
-    minHeight: 50,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: `${colors.brown}70`,
-    backgroundColor: colors.white,
-    paddingHorizontal: 14,
-    fontFamily: 'Satoshi-Regular',
-    fontSize: 14,
-    color: colors.black,
-  },
+
   error: {
     marginTop: 8,
     color: '#8b2a1b',
-    fontFamily: 'Satoshi-Regular',
-    fontSize: 12,
+    fontFamily: fonts.family.primary.regular,
+    fontSize: fonts.size.sm,
   },
   resultsCounter: {
-    marginTop: 4,
-    marginBottom: 6,
+    marginTop: 20,
+    marginBottom: 10,
     color: colors.brownMid,
-    fontFamily: 'Satoshi-Regular',
-    fontSize: 12,
+    fontFamily: fonts.family.primary.regular,
+    fontSize: fonts.size.md,
   },
   listContent: {
     paddingHorizontal: 20,
@@ -68,40 +54,21 @@ export const styles = StyleSheet.create({
     gap: 10,
   },
   listEmptyContent: {
-    flexGrow: 1,
+    paddingTop: 50,
     paddingHorizontal: 20,
-    paddingTop: 12,
+
     justifyContent: 'center',
   },
-  resultCard: {
-    backgroundColor: colors.white,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: `${colors.brown}18`,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    gap: 6,
+  emptyImageContainer: {
+    width: 150,
+    height: 150,
   },
-  resultTitle: {
-    fontFamily: 'CabinetGrotesk-Bold',
-    fontSize: 18,
-    color: colors.black,
+  emptyImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
-  resultMeta: {
-    fontFamily: 'Satoshi-Bold',
-    fontSize: 12,
-    color: colors.salmon,
-  },
-  resultSnippet: {
-    fontFamily: 'Satoshi-Regular',
-    fontSize: 13,
-    color: colors.brownMid,
-  },
-  resultActions: {
-    flexDirection: 'row',
-    gap: 8,
-    marginTop: 4,
-  },
+
   actionButton: {
     flex: 1,
   },
@@ -112,13 +79,13 @@ export const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontFamily: 'CabinetGrotesk-Bold',
-    fontSize: 22,
+    fontSize: fonts.size.xl,
     color: colors.black,
     textAlign: 'center',
   },
   emptySubtitle: {
     fontFamily: 'Satoshi-Regular',
-    fontSize: 14,
+    fontSize: fonts.size.lg,
     color: colors.brownMid,
     textAlign: 'center',
   },
