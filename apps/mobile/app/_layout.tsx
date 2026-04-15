@@ -68,7 +68,7 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <AuthGate />
-      <StatusBar style="dark" />
+      <StatusBar style="dark" translucent backgroundColor="transparent" />
     </SafeAreaProvider>
   );
 }

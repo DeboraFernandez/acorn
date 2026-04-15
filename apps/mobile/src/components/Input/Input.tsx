@@ -4,11 +4,12 @@ import { styles } from './Input.styles';
 import { Ionicons } from '@expo/vector-icons';
 
 export interface InputProps extends TextInputProps {
-  label: string;
+  label?: string;
   value: string;
   onChangeText: (text: string) => void;
   error?: string;
   showClear?: boolean;
+  icon?: React.ReactNode;
 }
 
 export const Input = React.memo(function Input({
@@ -19,6 +20,7 @@ export const Input = React.memo(function Input({
   showClear = true,
   secureTextEntry,
   placeholder,
+  icon,
   ...rest
 }: InputProps) {
   const focused = useRef(false);
@@ -29,12 +31,14 @@ export const Input = React.memo(function Input({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>{label}</Text>
+      {!!label && <Text style={styles.label}>{label}</Text>}
 
       <View style={[styles.inputWrapper, hasError && styles.inputWrapperError]}>
+        {icon && <View style={styles.leftIcon}>{icon}</View>}
+
         <TextInput
           ref={inputRef}
-          style={[styles.input, hasError && styles.inputError]}
+          style={[styles.input, hasError && styles.inputError, !!icon && styles.inputWithIcon]}
           value={value}
           onChangeText={onChangeText}
           onFocus={() => {
