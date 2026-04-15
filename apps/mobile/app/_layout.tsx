@@ -54,6 +54,9 @@ export default function RootLayout() {
   const [loaded, error] = useFonts({
     CabinetGrotesk: require('../assets/fonts/CabinetGrotesk-Variable.ttf'),
     Satoshi: require('../assets/fonts/Satoshi-Variable.ttf'),
+    'Satoshi-Regular': require('../assets/fonts/Satoshi/Satoshi-Regular.otf'),
+    'Satoshi-Medium': require('../assets/fonts/Satoshi/Satoshi-Medium.otf'),
+    'CabinetGrotesk-Bold': require('../assets/fonts/CabinetGrotesk/CabinetGrotesk-Bold.otf'),
   });
 
   useEffect(() => {
