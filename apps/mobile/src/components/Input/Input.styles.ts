@@ -78,4 +78,15 @@ export const styles = StyleSheet.create({
     letterSpacing: 0.32,
     lineHeight: 20,
   },
+
+  //SVG Icon Props
+  leftIcon: {
+    marginLeft: 14,
+    marginRight: -4,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  inputWithIcon: {
+    paddingLeft: 10,
+  },
 });
