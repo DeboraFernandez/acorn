@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import type { Session } from '@supabase/supabase-js';
-import HomeScreen from '../../src/screens/Home/Home';
-import { supabase } from '../../lib/supabase/client';
-import { Alert, View, Button } from 'react-native';
+import HomeScreen from '@screens/Home/Home';
+import { supabase } from '@lib/supabase/client';
+import { View } from 'react-native';
 
 export default function HomeRoute() {
   const router = useRouter();

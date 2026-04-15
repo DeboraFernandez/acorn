@@ -6,7 +6,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase } from '@lib/supabase';
 import { Keyboard, TouchableWithoutFeedback, View } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();

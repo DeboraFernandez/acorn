@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import ResetPasswordScreen from '../../src/screens/ResetPassword';
+import ResetPasswordScreen from '@screens/ResetPassword';
 
 export default function ResetPasswordRoute() {
   const router = useRouter();
