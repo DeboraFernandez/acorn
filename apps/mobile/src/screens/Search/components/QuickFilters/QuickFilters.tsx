@@ -1,6 +1,8 @@
 import React from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
+import { Pill } from '../../components/Pill/Pill';
 import { styles } from './QuickFilters.styles';
+import FilterIcon from '../../../../../assets/icons/search-filter-icon.svg';
 
 const QUICK_FILTERS = [
   { id: 'all', label: 'Todos' },
@@ -8,14 +10,14 @@ const QUICK_FILTERS = [
   { id: 'new', label: 'Nuevos' },
 ];
 
-interface QuickFiltersProps {
+type QuickFiltersProps = {
   activeQuickFilter: string;
   hasActiveFilters: boolean;
   showFilterPanel: boolean;
   onQuickFilter: (id: string) => void;
   onToggleFilterPanel: () => void;
   onLayout: (y: number, height: number) => void;
-}
+};
 
 export function QuickFilters({
   activeQuickFilter,
@@ -38,35 +40,20 @@ export function QuickFilters({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.pillsRow}
       >
-        <TouchableOpacity
-          style={[
-            styles.pillFilter,
-            (hasActiveFilters || showFilterPanel) && styles.pillFilterActive,
-          ]}
+        <Pill
+          icon={FilterIcon}
+          label="Filtros"
+          active={hasActiveFilters || showFilterPanel}
           onPress={onToggleFilterPanel}
-          activeOpacity={0.8}
-        >
-          <Text
-            style={[
-              styles.pillFilterLabel,
-              (hasActiveFilters || showFilterPanel) && styles.pillFilterLabelActive,
-            ]}
-          >
-            ⚙ Filtros
-          </Text>
-        </TouchableOpacity>
-
+          variant="filter"
+        />
         {QUICK_FILTERS.map((f) => (
-          <TouchableOpacity
+          <Pill
             key={f.id}
-            style={[styles.pill, activeQuickFilter === f.id && styles.pillActive]}
+            label={f.label}
+            active={activeQuickFilter === f.id}
             onPress={() => onQuickFilter(f.id)}
-            activeOpacity={0.8}
-          >
-            <Text style={[styles.pillLabel, activeQuickFilter === f.id && styles.pillLabelActive]}>
-              {f.label}
-            </Text>
-          </TouchableOpacity>
+          />
         ))}
       </ScrollView>
     </View>
