@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SearchScreen } from '@screens/Search/Search';
-import { colors } from '@themes/colors';
+import { colors } from '@theme/colors';
 
 export default function SearchRoute() {
   const router = useRouter();
