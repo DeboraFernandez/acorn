@@ -1,13 +1,17 @@
-import { View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { SearchScreen } from '../../src/screens/Search/Search';
+import { colors } from '../../src/theme/colors';
 
 export default function SearchRoute() {
   const router = useRouter();
 
   return (
-    <View style={{ flex: 1 }}>
-      <SearchScreen onOpenDetail={(itemId) => router.push(`/(app)/item/${itemId}`)} />
-    </View>
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.background }}>
+      <SearchScreen
+        onBack={() => router.back()}
+        onOpenDetail={(itemId) => router.push(`/(app)/item/${itemId}`)}
+      />
+    </SafeAreaView>
   );
 }
