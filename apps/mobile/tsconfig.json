@@ -4,5 +4,12 @@
     "strict": true,
     "jsx": "react-native",
     "typeRoots": ["./src/types", "./node_modules/@types"],
+    "baseUrl": ".",
+    "paths": {
+      "@components/*": ["src/components/*"],
+      "@themes/*": ["src/themes/*"],
+      "@screens/*": ["src/screens/*"],
+      "@assets/*": ["assets/*"],
+    },
   },
 }
