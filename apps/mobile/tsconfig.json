@@ -6,10 +6,13 @@
     "typeRoots": ["./src/types", "./node_modules/@types"],
     "baseUrl": ".",
     "paths": {
-      "@components/*": ["src/components/*"],
-      "@themes/*": ["src/themes/*"],
-      "@screens/*": ["src/screens/*"],
       "@assets/*": ["assets/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@lib/*": ["lib/*"],
+      "@components/*": ["src/components/*"],
+      "@screens/*": ["src/screens/*"],
+      "@themes/*": ["src/theme/*"],
+      "@types/*": ["src/types/*"],
     },
   },
 }
