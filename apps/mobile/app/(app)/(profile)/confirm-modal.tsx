@@ -1,6 +1,12 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ConfirmModal } from '@screens/profile/components/ConfirmModal/ConfirmModal';
 import { supabase } from '@lib/supabase';
+import { ImageSourcePropType } from 'react-native';
+
+const ACTION_IMAGES: Record<string, ImageSourcePropType> = {
+  signOut: require('@assets/session-logout-image.png'),
+  deleteAccount: require('@assets/acorn-empty-state.png'),
+};
 
 export default function ConfirmModalRoute() {
   const router = useRouter();
@@ -28,6 +34,7 @@ export default function ConfirmModalRoute() {
       subtitle={subtitle}
       confirmLabel={confirmLabel}
       danger={danger === 'true'}
+      image={ACTION_IMAGES[action]}
       onConfirm={handleConfirm}
       onCancel={() => router.back()}
     />

@@ -34,6 +34,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-router',
     'expo-web-browser',
     [
+      'expo-navigation-bar',
+      {
+        position: 'absolute',
+        visibility: 'visible',
+      },
+    ],
+    [
       'expo-share-intent',
       {
         iosActivationRules: {

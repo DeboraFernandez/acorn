@@ -1,5 +1,14 @@
 import React, { useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, PanResponder, Animated, Dimensions } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  PanResponder,
+  Animated,
+  Dimensions,
+  Image,
+  ImageSourcePropType,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { styles } from './ConfirmModal.styles';
 
@@ -14,6 +23,7 @@ type ConfirmModalProps = {
   onConfirm: () => void;
   onCancel: () => void;
   danger?: boolean;
+  image?: ImageSourcePropType;
 };
 
 export function ConfirmModal({
@@ -24,6 +34,7 @@ export function ConfirmModal({
   onConfirm,
   onCancel,
   danger = false,
+  image,
 }: ConfirmModalProps) {
   const insets = useSafeAreaInsets();
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
@@ -80,6 +91,7 @@ export function ConfirmModal({
         <View style={styles.handleContainer}>
           <View style={styles.handle} />
         </View>
+        {image && <Image source={image} style={styles.image} resizeMode="contain" />}
         <Text style={styles.title}>{title}</Text>
         {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
         <View style={styles.buttons}>

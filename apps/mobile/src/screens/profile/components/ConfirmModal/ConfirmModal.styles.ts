@@ -22,20 +22,25 @@ export const styles = StyleSheet.create({
   handleContainer: {
     width: '100%',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 20,
   },
   handle: {
     width: 81,
     height: 5,
     borderRadius: 100,
-    backgroundColor: 'rgba(67,40,28,0.7)',
+    backgroundColor: colors.brownMid,
+  },
+  image: {
+    width: 140,
+    height: 140,
+    marginBottom: 16,
   },
   title: {
     fontFamily: 'CabinetGrotesk-Bold',
     fontSize: 25,
     color: colors.brown,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 15,
   },
   subtitle: {
     fontFamily: 'Satoshi-Regular',
@@ -44,7 +49,7 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 24,
     letterSpacing: 0.16,
-    marginBottom: 24,
+    marginBottom: 40,
     width: 258,
   },
   buttons: {
@@ -52,6 +57,7 @@ export const styles = StyleSheet.create({
     gap: 12,
     width: '100%',
     marginTop: 8,
+    paddingBottom: 20,
   },
   cancelButton: {
     flex: 1,
