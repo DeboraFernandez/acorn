@@ -50,6 +50,17 @@ export default function ProfileScreen({
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <View style={[styles.header, { paddingTop: insets.top + 30 }]}>
+          <ImageBackground
+            source={require('../assets/profile-header-top.png')}
+            style={styles.headerBackgroundTop}
+            resizeMode="stretch"
+          />
+          <ImageBackground
+            source={require('../assets/profile-header-bottom.png')}
+            style={styles.headerBackgroundBottom}
+            resizeMode="stretch"
+          />
+
           <View style={styles.avatarContainer}>
             {avatarUrl ? (
               <Image source={{ uri: avatarUrl }} style={styles.avatar} />
