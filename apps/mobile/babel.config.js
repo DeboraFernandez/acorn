@@ -9,11 +9,11 @@ module.exports = function (api) {
           root: ['.'],
           alias: {
             '@assets': './assets',
-            '@hooks': './src/hooks',
+            '@hooks': './hooks',
             '@lib': './lib',
             '@components': './src/components',
             '@screens': './src/screens',
-            '@themes': './src/theme',
+            '@theme': './src/theme',
             '@types': './src/types',
           },
         },
