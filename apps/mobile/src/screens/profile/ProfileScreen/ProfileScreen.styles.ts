@@ -13,12 +13,29 @@ export const styles = StyleSheet.create({
   // Header
   header: {
     alignItems: 'center',
-    paddingBottom: 32,
+    paddingBottom: 50,
     paddingHorizontal: 20,
-    backgroundColor: colors.salmon ?? '#fdf0ed',
+    backgroundColor: colors.background,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
-    marginBottom: 24,
+    marginBottom: 14,
+    overflow: 'hidden',
+  },
+  headerBackgroundTop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '70%',
+    overflow: 'hidden',
+  },
+  headerBackgroundBottom: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '100%',
+    overflow: 'hidden',
   },
   avatarContainer: {
     width: 80,
@@ -27,11 +44,19 @@ export const styles = StyleSheet.create({
     overflow: 'hidden',
     marginBottom: 16,
     backgroundColor: colors.background,
+    borderWidth: 2,
+    borderColor: 'rgba(67, 40, 28, 0.3)',
+    shadowColor: 'rgba(67, 40, 28, 1)',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 10,
   },
   avatar: {
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
+    padding: 5,
   },
   userName: {
     fontFamily: 'CabinetGrotesk-Bold',
@@ -48,8 +73,19 @@ export const styles = StyleSheet.create({
   },
 
   // Sections
+  sectionsBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 250,
+    marginHorizontal: 20,
+    overflow: 'hidden',
+    borderRadius: 20,
+  },
   sections: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 40,
+    paddingTop: 30,
     gap: 24,
     paddingBottom: 40,
   },
@@ -63,50 +99,8 @@ export const styles = StyleSheet.create({
     marginBottom: 4,
   },
   sectionCard: {
-    backgroundColor: colors.white ?? '#fff',
+    backgroundColor: 'transparent',
     borderRadius: 16,
     overflow: 'hidden',
-  },
-
-  // Menu item
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    gap: 12,
-  },
-  menuIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(249,111,93,0.09)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  menuIconDanger: {
-    backgroundColor: 'rgba(249,111,93,0.09)',
-  },
-  menuIconText: {
-    fontSize: 18,
-  },
-  menuLabel: {
-    flex: 1,
-    fontFamily: 'Satoshi-Regular',
-    fontSize: 18,
-    color: colors.brown,
-  },
-  menuLabelDanger: {
-    color: colors.salmon,
-  },
-  menuChevron: {
-    fontSize: 22,
-    color: colors.brown,
-    opacity: 0.4,
-  },
-  separator: {
-    height: 1,
-    backgroundColor: colors.background,
-    marginHorizontal: 16,
   },
 });

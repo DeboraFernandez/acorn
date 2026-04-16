@@ -1,15 +1,10 @@
-import React from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import React, { useEffect } from 'react';
+import { View, Text, Image, ScrollView, ImageBackground } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { styles } from './ProfileScreen.styles';
-
-type ProfileMenuItemProps = {
-  label: string;
-  icon: string;
-  onPress: () => void;
-  danger?: boolean;
-};
+import SectionButton from '../components/SectionButton/SectionButton';
+import { supabase } from '@lib/supabase';
 
 type ProfileScreenProps = {
   userName?: string;
@@ -19,20 +14,8 @@ type ProfileScreenProps = {
   onChangePassword?: () => void;
 };
 
-function ProfileMenuItem({ label, icon, onPress, danger }: ProfileMenuItemProps) {
-  return (
-    <TouchableOpacity style={styles.menuItem} onPress={onPress} activeOpacity={0.7}>
-      <View style={[styles.menuIcon, danger && styles.menuIconDanger]}>
-        <Text style={styles.menuIconText}>{icon}</Text>
-      </View>
-      <Text style={[styles.menuLabel, danger && styles.menuLabelDanger]}>{label}</Text>
-      <Text style={styles.menuChevron}>›</Text>
-    </TouchableOpacity>
-  );
-}
-
 export default function ProfileScreen({
-  userName = 'Usuario',
+  userName = '',
   userEmail = '',
   avatarUrl,
   onEditProfile = () => {},
@@ -40,32 +23,68 @@ export default function ProfileScreen({
 }: ProfileScreenProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const [userData, setUserData] = React.useState<{ name: string; email: string } | null>(null);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const fullName = user.user_metadata?.full_name;
+      setUserData({
+        name:
+          typeof fullName === 'string' && fullName.trim()
+            ? fullName.trim()
+            : (user.email ?? 'Usuario'),
+        email: user.email ?? '',
+      });
+    };
+
+    void loadUser();
+  }, []);
 
   return (
     <View style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <View style={[styles.header, { paddingTop: insets.top + 30 }]}>
+          <ImageBackground
+            source={require('../assets/profile-header-top.webp')}
+            style={styles.headerBackgroundTop}
+          />
+          <ImageBackground
+            source={require('../assets/profile-header-bottom.webp')}
+            style={styles.headerBackgroundBottom}
+            resizeMode="stretch"
+          />
+
           <View style={styles.avatarContainer}>
             {avatarUrl ? (
               <Image source={{ uri: avatarUrl }} style={styles.avatar} />
             ) : (
-              <Image source={require('@assets/acorn-empty-state.png')} style={styles.avatar} />
+              <Image source={require('@assets/default-avatar.png')} style={styles.avatar} />
             )}
           </View>
-          <Text style={styles.userName}>{userName}</Text>
-          <Text style={styles.userEmail}>{userEmail}</Text>
+          <Text style={styles.userName}>{userData?.name ?? userName}</Text>
+          <Text style={styles.userEmail}>{userData?.email ?? userEmail}</Text>
         </View>
 
         {/* Secciones */}
         <View style={styles.sections}>
+          <ImageBackground
+            source={require('../assets/profile-section-bg.webp')}
+            style={styles.sectionsBackground}
+            resizeMode="stretch"
+          />
+
           {/* Cuenta */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Cuenta</Text>
             <View style={styles.sectionCard}>
-              <ProfileMenuItem label="Mi perfil" icon="👤" onPress={onEditProfile} />
-              <View style={styles.separator} />
-              <ProfileMenuItem label="Cambiar contraseña" icon="🔒" onPress={onChangePassword} />
+              <SectionButton label="Mi perfil" icon="user" onPress={onEditProfile} />
+              <SectionButton label="Cambiar contraseña" icon="lock" onPress={onChangePassword} />
             </View>
           </View>
 
@@ -73,9 +92,9 @@ export default function ProfileScreen({
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Sesión</Text>
             <View style={styles.sectionCard}>
-              <ProfileMenuItem
+              <SectionButton
                 label="Cerrar sesión"
-                icon="↩"
+                icon="logOut"
                 onPress={() =>
                   router.push({
                     pathname: '/(app)/(profile)/confirm-modal',
@@ -93,9 +112,9 @@ export default function ProfileScreen({
 
           {/* Eliminar cuenta */}
           <View style={styles.sectionCard}>
-            <ProfileMenuItem
+            <SectionButton
               label="Eliminar cuenta"
-              icon="⚠️"
+              icon="warning"
               onPress={() =>
                 router.push({
                   pathname: '/(app)/(profile)/confirm-modal',
@@ -108,7 +127,6 @@ export default function ProfileScreen({
                   },
                 })
               }
-              danger
             />
           </View>
         </View>
