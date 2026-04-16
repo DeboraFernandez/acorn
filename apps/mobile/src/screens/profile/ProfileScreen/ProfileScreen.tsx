@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { styles } from './ProfileScreen.styles';
-import { ConfirmModal } from '../components/ConfirmModal/ConfirmModal';
 
 type ProfileMenuItemProps = {
   label: string;
@@ -17,8 +17,6 @@ type ProfileScreenProps = {
   avatarUrl?: string | null;
   onEditProfile?: () => void;
   onChangePassword?: () => void;
-  onSignOut?: () => void;
-  onDeleteAccount?: () => void;
 };
 
 function ProfileMenuItem({ label, icon, onPress, danger }: ProfileMenuItemProps) {
@@ -39,17 +37,15 @@ export default function ProfileScreen({
   avatarUrl,
   onEditProfile = () => {},
   onChangePassword = () => {},
-  onSignOut = () => {},
-  onDeleteAccount = () => {},
 }: ProfileScreenProps) {
-  const [signOutModalOpen, setSignOutModalOpen] = React.useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView edges={['top']} style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: insets.top + 30 }]}>
           <View style={styles.avatarContainer}>
             {avatarUrl ? (
               <Image source={{ uri: avatarUrl }} style={styles.avatar} />
@@ -80,7 +76,17 @@ export default function ProfileScreen({
               <ProfileMenuItem
                 label="Cerrar sesión"
                 icon="↩"
-                onPress={() => setSignOutModalOpen(true)}
+                onPress={() =>
+                  router.push({
+                    pathname: '/(app)/(profile)/confirm-modal',
+                    params: {
+                      title: '¿Quieres cerrar sesión?',
+                      subtitle: '¿Estás seguro de querer cerrar tu sesión activa?',
+                      confirmLabel: 'Cerrar sesión',
+                      action: 'signOut',
+                    },
+                  })
+                }
               />
             </View>
           </View>
@@ -90,37 +96,23 @@ export default function ProfileScreen({
             <ProfileMenuItem
               label="Eliminar cuenta"
               icon="⚠️"
-              onPress={() => setDeleteModalOpen(true)}
+              onPress={() =>
+                router.push({
+                  pathname: '/(app)/(profile)/confirm-modal',
+                  params: {
+                    title: '¿Eliminar cuenta?',
+                    subtitle: 'Esta acción es irreversible y perderás todos tus datos.',
+                    confirmLabel: 'Eliminar cuenta',
+                    action: 'deleteAccount',
+                    danger: 'true',
+                  },
+                })
+              }
               danger
             />
           </View>
         </View>
       </ScrollView>
-
-      <ConfirmModal
-        visible={signOutModalOpen}
-        title="¿Quieres cerrar sesión?"
-        subtitle="¿Estás seguro de querer cerrar tu sesión activa?"
-        confirmLabel="Cerrar sesión"
-        onConfirm={() => {
-          setSignOutModalOpen(false);
-          onSignOut();
-        }}
-        onCancel={() => setSignOutModalOpen(false)}
-      />
-
-      <ConfirmModal
-        visible={deleteModalOpen}
-        title="¿Eliminar cuenta?"
-        subtitle="Esta acción es irreversible y perderás todos tus datos."
-        confirmLabel="Eliminar cuenta"
-        onConfirm={() => {
-          setDeleteModalOpen(false);
-          onDeleteAccount();
-        }}
-        onCancel={() => setDeleteModalOpen(false)}
-        danger
-      />
-    </SafeAreaView>
+    </View>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, PanResponder, Animated, Dimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { styles } from './ConfirmModal.styles';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -24,6 +25,7 @@ export function ConfirmModal({
   onCancel,
   danger = false,
 }: ConfirmModalProps) {
+  const insets = useSafeAreaInsets();
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
 
   useEffect(() => {
@@ -66,7 +68,13 @@ export function ConfirmModal({
   return (
     <View style={{ flex: 1, justifyContent: 'flex-end' }}>
       <Animated.View
-        style={[styles.sheet, { transform: [{ translateY }] }]}
+        style={[
+          styles.sheet,
+          {
+            transform: [{ translateY }],
+            paddingBottom: insets.bottom + 16,
+          },
+        ]}
         {...panResponder.panHandlers}
       >
         <View style={styles.handleContainer}>

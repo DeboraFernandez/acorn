@@ -15,7 +15,6 @@ export const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingHorizontal: 24,
-    paddingBottom: 40,
     alignItems: 'center',
     borderWidth: 2,
     borderColor: 'rgba(66,36,25,0.1)',

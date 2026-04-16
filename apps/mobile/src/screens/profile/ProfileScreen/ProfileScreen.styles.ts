@@ -4,7 +4,7 @@ import { colors } from '@theme/colors';
 export const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: 'transparent',
   },
   scrollContent: {
     flexGrow: 1,
@@ -13,7 +13,6 @@ export const styles = StyleSheet.create({
   // Header
   header: {
     alignItems: 'center',
-    paddingTop: 40,
     paddingBottom: 32,
     paddingHorizontal: 20,
     backgroundColor: colors.salmon ?? '#fdf0ed',
@@ -111,4 +110,3 @@ export const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
 });
-
