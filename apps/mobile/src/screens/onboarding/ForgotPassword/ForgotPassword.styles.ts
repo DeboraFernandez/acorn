@@ -1,34 +1,22 @@
 import { StyleSheet } from 'react-native';
 
-import { colors } from '../theme/colors';
-import { fonts } from '../theme/fonts';
+import { colors } from '@theme/colors';
+import { fonts } from '@theme/fonts';
 
 export const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.background,
   },
-  keyboardView: {
-    flex: 1,
-  },
+
   container: {
     flex: 1,
     paddingHorizontal: 20,
-    justifyContent: 'center',
-    gap: 14,
+    paddingTop: 60,
+    width: '100%',
+    gap: 25,
   },
-  title: {
-    fontFamily: fonts.family.primary.regular,
-    fontSize: fonts.size.xl,
-    color: colors.brown,
-    marginBottom: 6,
-  },
-  subtitle: {
-    fontFamily: fonts.family.primary.regular,
-    fontSize: fonts.size.md,
-    color: colors.brownMid,
-    marginBottom: 8,
-  },
+
   successText: {
     color: '#2f6a3b',
     fontFamily: fonts.family.primary.regular,
@@ -40,9 +28,10 @@ export const styles = StyleSheet.create({
     fontSize: fonts.size.sm,
   },
   link: {
-    color: colors.salmon,
+    color: colors.brownMid,
     fontFamily: fonts.family.primary.regular,
     fontSize: fonts.size.md,
     textAlign: 'center',
+    textDecorationLine: 'underline',
   },
 });
