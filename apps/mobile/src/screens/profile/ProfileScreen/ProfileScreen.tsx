@@ -51,12 +51,11 @@ export default function ProfileScreen({
         {/* Header */}
         <View style={[styles.header, { paddingTop: insets.top + 30 }]}>
           <ImageBackground
-            source={require('../assets/profile-header-top.png')}
+            source={require('../assets/profile-header-top.webp')}
             style={styles.headerBackgroundTop}
-            resizeMode="stretch"
           />
           <ImageBackground
-            source={require('../assets/profile-header-bottom.png')}
+            source={require('../assets/profile-header-bottom.webp')}
             style={styles.headerBackgroundBottom}
             resizeMode="stretch"
           />
@@ -75,7 +74,7 @@ export default function ProfileScreen({
         {/* Secciones */}
         <View style={styles.sections}>
           <ImageBackground
-            source={require('../assets/profile-section-bg.png')}
+            source={require('../assets/profile-section-bg.webp')}
             style={styles.sectionsBackground}
             resizeMode="stretch"
           />
@@ -85,7 +84,6 @@ export default function ProfileScreen({
             <Text style={styles.sectionTitle}>Cuenta</Text>
             <View style={styles.sectionCard}>
               <SectionButton label="Mi perfil" icon="user" onPress={onEditProfile} />
-              <View style={styles.separator} />
               <SectionButton label="Cambiar contraseña" icon="lock" onPress={onChangePassword} />
             </View>
           </View>

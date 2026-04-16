@@ -26,7 +26,7 @@ export const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: '100%',
+    height: '70%',
     overflow: 'hidden',
   },
   headerBackgroundBottom: {
@@ -99,50 +99,8 @@ export const styles = StyleSheet.create({
     marginBottom: 4,
   },
   sectionCard: {
-    backgroundColor: colors.white ?? '#fff',
+    backgroundColor: 'transparent',
     borderRadius: 16,
     overflow: 'hidden',
-  },
-
-  // Menu item
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    gap: 12,
-  },
-  menuIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(249,111,93,0.09)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  menuIconDanger: {
-    backgroundColor: 'rgba(249,111,93,0.09)',
-  },
-  menuIconText: {
-    fontSize: 18,
-  },
-  menuLabel: {
-    flex: 1,
-    fontFamily: 'Satoshi-Regular',
-    fontSize: 18,
-    color: colors.brown,
-  },
-  menuLabelDanger: {
-    color: colors.salmon,
-  },
-  menuChevron: {
-    fontSize: 22,
-    color: colors.brown,
-    opacity: 0.4,
-  },
-  separator: {
-    height: 1,
-    backgroundColor: colors.background,
-    marginHorizontal: 16,
   },
 });
