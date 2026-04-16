@@ -48,8 +48,19 @@ export const styles = StyleSheet.create({
   },
 
   // Sections
+  sectionsBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 250,
+    marginHorizontal: 20,
+    overflow: 'hidden',
+    borderRadius: 20,
+  },
   sections: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 40,
+    paddingTop: 30,
     gap: 24,
     paddingBottom: 40,
   },

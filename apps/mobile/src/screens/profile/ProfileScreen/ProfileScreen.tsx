@@ -1,15 +1,9 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { View, Text, Image, ScrollView, ImageBackground } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { styles } from './ProfileScreen.styles';
-
-type ProfileMenuItemProps = {
-  label: string;
-  icon: string;
-  onPress: () => void;
-  danger?: boolean;
-};
+import SectionButton from '../components/SectionButton/SectionButton';
 
 type ProfileScreenProps = {
   userName?: string;
@@ -18,18 +12,6 @@ type ProfileScreenProps = {
   onEditProfile?: () => void;
   onChangePassword?: () => void;
 };
-
-function ProfileMenuItem({ label, icon, onPress, danger }: ProfileMenuItemProps) {
-  return (
-    <TouchableOpacity style={styles.menuItem} onPress={onPress} activeOpacity={0.7}>
-      <View style={[styles.menuIcon, danger && styles.menuIconDanger]}>
-        <Text style={styles.menuIconText}>{icon}</Text>
-      </View>
-      <Text style={[styles.menuLabel, danger && styles.menuLabelDanger]}>{label}</Text>
-      <Text style={styles.menuChevron}>›</Text>
-    </TouchableOpacity>
-  );
-}
 
 export default function ProfileScreen({
   userName = 'Usuario',
@@ -59,13 +41,19 @@ export default function ProfileScreen({
 
         {/* Secciones */}
         <View style={styles.sections}>
+          <ImageBackground
+            source={require('../assets/profile-section-bg.png')}
+            style={styles.sectionsBackground}
+            resizeMode="stretch"
+          />
+
           {/* Cuenta */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Cuenta</Text>
             <View style={styles.sectionCard}>
-              <ProfileMenuItem label="Mi perfil" icon="👤" onPress={onEditProfile} />
+              <SectionButton label="Mi perfil" icon="user" onPress={onEditProfile} />
               <View style={styles.separator} />
-              <ProfileMenuItem label="Cambiar contraseña" icon="🔒" onPress={onChangePassword} />
+              <SectionButton label="Cambiar contraseña" icon="lock" onPress={onChangePassword} />
             </View>
           </View>
 
@@ -73,9 +61,9 @@ export default function ProfileScreen({
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Sesión</Text>
             <View style={styles.sectionCard}>
-              <ProfileMenuItem
+              <SectionButton
                 label="Cerrar sesión"
-                icon="↩"
+                icon="logOut"
                 onPress={() =>
                   router.push({
                     pathname: '/(app)/(profile)/confirm-modal',
@@ -93,9 +81,9 @@ export default function ProfileScreen({
 
           {/* Eliminar cuenta */}
           <View style={styles.sectionCard}>
-            <ProfileMenuItem
+            <SectionButton
               label="Eliminar cuenta"
-              icon="⚠️"
+              icon="warning"
               onPress={() =>
                 router.push({
                   pathname: '/(app)/(profile)/confirm-modal',
@@ -108,7 +96,6 @@ export default function ProfileScreen({
                   },
                 })
               }
-              danger
             />
           </View>
         </View>

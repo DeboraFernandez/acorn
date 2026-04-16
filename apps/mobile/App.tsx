@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+/*import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -175,3 +175,4 @@ export default function App() {
     </SafeAreaProvider>
   );
 }
+*/
