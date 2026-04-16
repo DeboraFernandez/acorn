@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  ImageSourcePropType,
   Alert,
   ActivityIndicator,
   FlatList,
@@ -25,21 +24,9 @@ import { Profile } from '../Profile/Profile';
 import { TagManagement } from '../TagManagement/TagManagement';
 import { colors } from '../../theme/colors';
 import { styles } from './Home.styles';
-import { NavBar } from '../../components/NavBar/NavBar';
 import AcornEmpty from '../../../assets/svg/acorn-empty-state.svg';
-
-type ContentCardData = {
-  id: string;
-  title: string;
-  source: string;
-  tag: string;
-  savedDate: string;
-  status: 'No visto' | 'Visto';
-  isRead: boolean;
-  url?: string;
-  thumbnailUri?: string;
-  iconSource?: ImageSourcePropType;
-};
+import { ContentCardData } from './Home.types';
+import { HomeHeader } from './components/HomeHeader/HomeHeader';
 
 type ResourceRow = {
   id: string;
@@ -257,81 +244,8 @@ export default function HomeScreen({
     }
   };
 
-  const renderHeader = () => (
-    <>
-      <ImageBackground
-        source={require('../../../assets/noise-home-bg.webp')}
-        style={styles.heroContainer}
-        imageStyle={styles.heroImage}
-      >
-        <View style={styles.header}>
-          <View style={styles.headerLogo}>
-            <Image
-              source={require('../../../assets/icon.png')}
-              style={styles.logoImage}
-              resizeMode="contain"
-            />
-          </View>
-          <TouchableOpacity
-            style={styles.headerAvatar}
-            activeOpacity={0.8}
-            onPress={() => setProfileOpen(true)}
-          >
-            <Image
-              source={require('../../../assets/default-avatar.png')}
-              style={styles.avatarImage}
-              resizeMode="cover"
-            />
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.greetingSection}>
-          <Text style={styles.greetingSubtitle}>Hola {userName}</Text>
-          <Text style={styles.greetingTitle}>{greeting}</Text>
-        </View>
-
-        {showOnboarding ? (
-          <View style={styles.featuredCard}>
-            <ContentCard
-              id="onboarding-how-to"
-              title="Cómo usar Acorn"
-              source="Guía"
-              tag="#ayuda"
-              savedDate="Hoy"
-              status="No visto"
-              iconSource={require('../../../assets/acorn-empty-guide.webp')}
-              onOpenDetail={() => {}}
-              onToggleRead={() => {}}
-            />
-          </View>
-        ) : null}
-
-        {featured ? (
-          <View style={styles.featuredCard}>
-            <ContentCard
-              {...featured}
-              onOpenDetail={setSelectedItemId}
-              onToggleRead={handleToggleRead}
-            />
-          </View>
-        ) : null}
-      </ImageBackground>
-
-      <View style={styles.sectionHeader}>
-        {resources.length > 0 && (
-          <>
-            <Text style={styles.sectionTitle}>Tus recursos</Text>
-            <Text style={styles.sectionSubtitle}>Ordenados por fecha de guardado</Text>
-          </>
-        )}
-      </View>
-
-      {listError ? <Text style={styles.listError}>{listError}</Text> : null}
-    </>
-  );
-
   const renderEmpty = () => {
-    if (loadingInitial) {
+    if (loadingInitial && resources.length === 0) {
       return (
         <View style={styles.emptyState}>
           <ActivityIndicator color={colors.salmon} />
@@ -340,13 +254,12 @@ export default function HomeScreen({
       );
     }
 
-    if (resources.length === 0) {
+    if (!loadingInitial && resources.length === 0) {
       return (
         <View style={styles.emptyState}>
           <Text style={styles.emptyTitle}>¡Es hora de empezar a explorar!</Text>
           <Text style={styles.sectionSubtitle}>
-            Guarda tu primer enlace o contenido desde tu aplicación o web favorita. Aprieta el botón
-            "Guardar enlace" para almacenar tu primer contenido digital.
+            Guarda tu primer enlace o contenido desde tu aplicación o web favorita.
           </Text>
         </View>
       );
@@ -363,7 +276,19 @@ export default function HomeScreen({
         contentContainerStyle={styles.scrollContent}
         data={listData}
         keyExtractor={(item) => item.id}
-        ListHeaderComponent={renderHeader}
+        ListHeaderComponent={
+          <HomeHeader
+            userName={userName}
+            greeting={greeting}
+            featured={featured}
+            showOnboarding={showOnboarding}
+            listError={listError}
+            resources={resources}
+            onProfilePress={() => setProfileOpen(true)}
+            onOpenDetail={setSelectedItemId}
+            onToggleRead={handleToggleRead}
+          />
+        }
         ListEmptyComponent={renderEmpty}
         renderItem={({ item }) => (
           <ContentCard {...item} onOpenDetail={setSelectedItemId} onToggleRead={handleToggleRead} />
@@ -389,16 +314,6 @@ export default function HomeScreen({
         </View>
       )}
 
-      {/* <NavBar
-        onAddPress={handleFabPress}
-        onSearchPress={onSearchPress ?? (() => {})}
-        searchActive={false}
-        onTagsPress={() => setTagsOpen(true)}
-        onSmartFoldersPress={() => setSmartFoldersOpen(true)}
-        tagsActive={tagsOpen}
-        smartFoldersActive={smartFoldersOpen}
-      />
- */}
       <SaveLinkFlow
         visible={saveLinkOpen}
         onClose={() => setSaveLinkOpen(false)}

@@ -10,6 +10,7 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
+    flexGrow: 1,
     paddingBottom: 20,
     paddingHorizontal: 16,
     gap: 30,
@@ -25,6 +26,7 @@ export const styles = StyleSheet.create({
     marginBottom: 24,
     borderRadius: 30,
     overflow: 'hidden',
+    backgroundColor: colors.background,
     shadowColor: colors.salmon,
     shadowOffset: { width: 0, height: 9 },
     shadowOpacity: 0.25,
