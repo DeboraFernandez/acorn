@@ -64,7 +64,7 @@ export default function ProfileScreen({
             {avatarUrl ? (
               <Image source={{ uri: avatarUrl }} style={styles.avatar} />
             ) : (
-              <Image source={require('@assets/acorn-empty-state.png')} style={styles.avatar} />
+              <Image source={require('@assets/default-avatar.png')} style={styles.avatar} />
             )}
           </View>
           <Text style={styles.userName}>{userData?.name ?? userName}</Text>
