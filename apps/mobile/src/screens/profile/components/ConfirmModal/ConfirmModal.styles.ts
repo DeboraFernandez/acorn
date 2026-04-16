@@ -1,11 +1,13 @@
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { colors } from '@theme/colors';
 
-const { height } = Dimensions.get('window');
-
 export const styles = StyleSheet.create({
-  backdrop: {
+  container: {
     flex: 1,
+    justifyContent: 'flex-end',
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.4)',
   },
   sheet: {
@@ -14,22 +16,20 @@ export const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     paddingHorizontal: 24,
     paddingBottom: 40,
-    paddingTop: 12,
     alignItems: 'center',
     borderWidth: 2,
     borderColor: 'rgba(66,36,25,0.1)',
+  },
+  handleContainer: {
+    width: '100%',
+    alignItems: 'center',
+    paddingVertical: 12,
   },
   handle: {
     width: 81,
     height: 5,
     borderRadius: 100,
     backgroundColor: 'rgba(67,40,28,0.7)',
-    marginBottom: 20,
-  },
-  illustration: {
-    width: 100,
-    height: 100,
-    marginBottom: 16,
   },
   title: {
     fontFamily: 'CabinetGrotesk-Bold',

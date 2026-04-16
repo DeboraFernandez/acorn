@@ -1,9 +1,11 @@
-import React from 'react';
-import { Modal, View, Text, TouchableOpacity, TouchableWithoutFeedback, Image } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { View, Text, TouchableOpacity, PanResponder, Animated, Dimensions } from 'react-native';
 import { styles } from './ConfirmModal.styles';
 
+const SCREEN_HEIGHT = Dimensions.get('window').height;
+
 type ConfirmModalProps = {
-  visible: boolean;
+  visible?: boolean;
   title: string;
   subtitle?: string;
   confirmLabel: string;
@@ -14,7 +16,6 @@ type ConfirmModalProps = {
 };
 
 export function ConfirmModal({
-  visible,
   title,
   subtitle,
   confirmLabel,
@@ -23,28 +24,56 @@ export function ConfirmModal({
   onCancel,
   danger = false,
 }: ConfirmModalProps) {
+  const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
+
+  useEffect(() => {
+    Animated.timing(translateY, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, gestureState) => gestureState.dy > 0,
+      onPanResponderMove: (_, gestureState) => {
+        if (gestureState.dy > 0) {
+          translateY.setValue(gestureState.dy);
+        }
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dy > 100) {
+          Animated.timing(translateY, {
+            toValue: SCREEN_HEIGHT,
+            duration: 200,
+            useNativeDriver: true,
+          }).start(() => {
+            translateY.setValue(SCREEN_HEIGHT);
+            onCancel();
+          });
+        } else {
+          Animated.spring(translateY, {
+            toValue: 0,
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+    }),
+  ).current;
+
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onCancel}>
-      <TouchableWithoutFeedback onPress={onCancel}>
-        <View style={styles.backdrop} />
-      </TouchableWithoutFeedback>
-
-      <View style={styles.sheet}>
-        {/* Handle */}
-        <View style={styles.handle} />
-
-        {/* Ilustración */}
-        <Image
-          source={require('@assets/adaptive-icon.png')}
-          style={styles.illustration}
-          resizeMode="contain"
-        />
-
-        {/* Textos */}
+    <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+      <Animated.View
+        style={[styles.sheet, { transform: [{ translateY }] }]}
+        {...panResponder.panHandlers}
+      >
+        <View style={styles.handleContainer}>
+          <View style={styles.handle} />
+        </View>
         <Text style={styles.title}>{title}</Text>
         {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
-
-        {/* Botones */}
         <View style={styles.buttons}>
           <TouchableOpacity style={styles.cancelButton} onPress={onCancel} activeOpacity={0.7}>
             <Text style={styles.cancelLabel}>{cancelLabel}</Text>
@@ -57,7 +86,7 @@ export function ConfirmModal({
             <Text style={styles.confirmLabel}>{confirmLabel}</Text>
           </TouchableOpacity>
         </View>
-      </View>
-    </Modal>
+      </Animated.View>
+    </View>
   );
 }

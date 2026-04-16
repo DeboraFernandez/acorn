@@ -8,6 +8,7 @@ import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { useState } from 'react';
 import { supabase } from '@lib/supabase';
 import { Keyboard, TouchableWithoutFeedback, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -36,10 +37,8 @@ function AuthGate() {
 
     return () => subscription.unsubscribe();
   }, []);
-
   useEffect(() => {
     if (!initialized) return;
-
     const inAuthGroup = segments[0] === '(auth)';
 
     if (!session && !inAuthGroup) {
@@ -74,9 +73,11 @@ export default function RootLayout() {
   if (!loaded && !error) return null;
 
   return (
-    <SafeAreaProvider>
-      <AuthGate />
-      <StatusBar style="dark" translucent backgroundColor="transparent" />
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <AuthGate />
+        <StatusBar style="dark" translucent backgroundColor="transparent" />
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
