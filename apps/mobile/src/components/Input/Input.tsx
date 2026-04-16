@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import { View, Text, TextInput, TouchableOpacity, TextInputProps } from 'react-native';
 import { styles } from './Input.styles';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,7 +12,7 @@ export interface InputProps extends TextInputProps {
   icon?: React.ReactNode;
 }
 
-export const Input = React.memo(function Input({
+export const Input = function Input({
   label,
   value,
   onChangeText,
@@ -23,30 +23,22 @@ export const Input = React.memo(function Input({
   icon,
   ...rest
 }: InputProps) {
-  const focused = useRef(false);
   const inputRef = useRef<TextInput>(null);
   const [passwordVisible, setPasswordVisible] = useState(false);
+
   const hasError = !!error;
   const isPassword = secureTextEntry;
 
   return (
     <View style={styles.container}>
       {!!label && <Text style={styles.label}>{label}</Text>}
-
       <View style={[styles.inputWrapper, hasError && styles.inputWrapperError]}>
         {icon && <View style={styles.leftIcon}>{icon}</View>}
-
         <TextInput
           ref={inputRef}
           style={[styles.input, hasError && styles.inputError, !!icon && styles.inputWithIcon]}
           value={value}
           onChangeText={onChangeText}
-          onFocus={() => {
-            focused.current = true;
-          }}
-          onBlur={() => {
-            focused.current = false;
-          }}
           returnKeyType="next"
           placeholder={placeholder}
           secureTextEntry={isPassword && !passwordVisible}
@@ -55,14 +47,10 @@ export const Input = React.memo(function Input({
           underlineColorAndroid="transparent"
           {...rest}
         />
-
         <View style={styles.iconsRow}>
           {isPassword && value.length > 0 && (
             <TouchableOpacity
-              onPress={() => {
-                setPasswordVisible((v) => !v);
-                setTimeout(() => inputRef.current?.focus(), 0);
-              }}
+              onPress={() => setPasswordVisible((v) => !v)}
               activeOpacity={0.7}
               style={styles.clearButton}
             >
@@ -73,21 +61,17 @@ export const Input = React.memo(function Input({
               />
             </TouchableOpacity>
           )}
-
-          {showClear && !isPassword && (
-            <View pointerEvents={value.length > 0 ? 'auto' : 'none'}>
-              <TouchableOpacity
-                style={[styles.clearButton, { opacity: value.length > 0 ? 1 : 0 }]}
-                onPress={() => onChangeText('')}
-                activeOpacity={0.7}
-              >
-                <Ionicons name="close-circle" size={18} color="#888" />
-              </TouchableOpacity>
-            </View>
+          {showClear && !isPassword && value.length > 0 && (
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={() => onChangeText('')}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="close-circle" size={18} color="#888" />
+            </TouchableOpacity>
           )}
         </View>
       </View>
-
       {hasError && (
         <View style={styles.errorRow}>
           <Ionicons name="alert-circle-outline" size={14} color="#e53e3e" />
@@ -96,4 +80,4 @@ export const Input = React.memo(function Input({
       )}
     </View>
   );
-});
+};
