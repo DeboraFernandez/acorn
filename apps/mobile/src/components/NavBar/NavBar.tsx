@@ -14,10 +14,10 @@ type NavBarProps = {
   onAddPress: () => void;
   onSearchPress: () => void;
   onTagsPress: () => void;
-  onSmartFoldersPress: () => void;
+  onProfilePress: () => void;
   searchActive: boolean;
   tagsActive: boolean;
-  smartFoldersActive: boolean;
+  profileActive: boolean;
 };
 
 export function NavBar({
@@ -25,10 +25,10 @@ export function NavBar({
   onAddPress,
   onSearchPress,
   onTagsPress,
-  onSmartFoldersPress,
+  onProfilePress,
   searchActive,
   tagsActive,
-  smartFoldersActive,
+  profileActive,
 }: NavBarProps) {
   const insets = useSafeAreaInsets();
 
@@ -51,9 +51,9 @@ export function NavBar({
           <FolderIcon width={24} height={24} />
           <Text style={[styles.navLabel, tagsActive ? styles.navLabelActive : null]}>Carpetas</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} activeOpacity={0.7} onPress={onSmartFoldersPress}>
+        <TouchableOpacity style={styles.navItem} activeOpacity={0.7} onPress={onProfilePress}>
           <ProfileIcon width={24} height={24} />
-          <Text style={[styles.navLabel, smartFoldersActive ? styles.navLabelActive : null]}>
+          <Text style={[styles.navLabel, profileActive ? styles.navLabelActive : null]}>
             Perfil
           </Text>
         </TouchableOpacity>
