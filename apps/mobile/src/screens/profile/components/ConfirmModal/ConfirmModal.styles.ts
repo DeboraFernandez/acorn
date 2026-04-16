@@ -1,0 +1,87 @@
+import { StyleSheet, Dimensions } from 'react-native';
+import { colors } from '@theme/colors';
+
+const { height } = Dimensions.get('window');
+
+export const styles = StyleSheet.create({
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  sheet: {
+    backgroundColor: colors.background,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: 24,
+    paddingBottom: 40,
+    paddingTop: 12,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(66,36,25,0.1)',
+  },
+  handle: {
+    width: 81,
+    height: 5,
+    borderRadius: 100,
+    backgroundColor: 'rgba(67,40,28,0.7)',
+    marginBottom: 20,
+  },
+  illustration: {
+    width: 100,
+    height: 100,
+    marginBottom: 16,
+  },
+  title: {
+    fontFamily: 'CabinetGrotesk-Bold',
+    fontSize: 25,
+    color: colors.brown,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontFamily: 'Satoshi-Regular',
+    fontSize: 16,
+    color: colors.brown,
+    textAlign: 'center',
+    lineHeight: 24,
+    letterSpacing: 0.16,
+    marginBottom: 24,
+    width: 258,
+  },
+  buttons: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+    marginTop: 8,
+  },
+  cancelButton: {
+    flex: 1,
+    borderWidth: 1.5,
+    borderColor: 'rgba(67,40,28,0.8)',
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  cancelLabel: {
+    fontFamily: 'Satoshi-Regular',
+    fontSize: 16,
+    color: colors.brown,
+    letterSpacing: 0.32,
+  },
+  confirmButton: {
+    flex: 1,
+    backgroundColor: colors.salmon,
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  confirmButtonDanger: {
+    backgroundColor: colors.salmon,
+  },
+  confirmLabel: {
+    fontFamily: 'Satoshi-Regular',
+    fontSize: 16,
+    color: '#fff',
+    letterSpacing: 0.32,
+  },
+});
