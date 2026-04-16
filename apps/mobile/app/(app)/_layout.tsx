@@ -8,6 +8,7 @@ export default function AppLayout() {
 
   const currentRoute = segments[segments.length - 1];
   const searchActive = currentRoute === 'search';
+  const profileActive = segments.includes('(profile)');
 
   return (
     <View style={{ flex: 1 }}>
@@ -24,10 +25,10 @@ export default function AppLayout() {
           }
           onSearchPress={() => router.push('/(app)/search')}
           onTagsPress={() => {}}
-          onSmartFoldersPress={() => {}}
+          onProfilePress={() => router.push('/(app)/(profile)/')}
           searchActive={searchActive}
+          profileActive={profileActive}
           tagsActive={false}
-          smartFoldersActive={false}
         />
       </View>
     </View>
