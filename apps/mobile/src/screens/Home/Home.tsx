@@ -20,7 +20,6 @@ import { SaveLinkFlow } from '../../components/SaveLinkFlow/SaveLinkFlow';
 import { ItemDetail } from '../ItemDetail/ItemDetail';
 import { useRouter } from 'expo-router';
 import { SmartFolders } from '../SmartFolders/SmartFolders';
-import { Profile } from '../Profile/Profile';
 import { TagManagement } from '../TagManagement/TagManagement';
 import { colors } from '../../theme/colors';
 import { styles } from './Home.styles';
@@ -94,7 +93,7 @@ export default function HomeScreen({
   const [saveFileOpen, setSaveFileOpen] = React.useState(false);
   const [tagsOpen, setTagsOpen] = React.useState(false);
   const [smartFoldersOpen, setSmartFoldersOpen] = React.useState(false);
-  const [profileOpen, setProfileOpen] = React.useState(false);
+  //const [profileOpen, setProfileOpen] = React.useState(false);
   const [selectedItemId, setSelectedItemId] = React.useState<string | null>(null);
 
   const [resources, setResources] = React.useState<ContentCardData[]>([]);
@@ -284,7 +283,9 @@ export default function HomeScreen({
             showOnboarding={showOnboarding}
             listError={listError}
             resources={resources}
-            onProfilePress={() => setProfileOpen(true)}
+            onProfilePress={() => {
+              /*setProfileOpen(true)*/
+            }}
             onOpenDetail={setSelectedItemId}
             onToggleRead={handleToggleRead}
           />
@@ -355,8 +356,6 @@ export default function HomeScreen({
           setSelectedItemId(itemId);
         }}
       />
-
-      <Profile visible={profileOpen} onClose={() => setProfileOpen(false)} />
     </SafeAreaView>
   );
 }
