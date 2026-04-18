@@ -1,4 +1,11 @@
-# Web (Next.js)
+# Web (Next.js 15)
+
+## Base structure
+
+- `app/` App Router routes and features
+- `components/` shared UI components (root-level)
+- `lib/` app services and integrations (including Supabase SSR helpers)
+- `hooks/` shared hooks (root-level)
 
 ## Supabase environment setup
 
@@ -20,3 +27,8 @@ Set the same variables in your hosting provider environment settings (for exampl
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
 Do not commit real `.env` files.
+
+## Supabase clients
+
+- Browser client (`@supabase/ssr`): `lib/supabase/client.ts`
+- Server client (`@supabase/ssr`): `lib/supabase/server.ts`
