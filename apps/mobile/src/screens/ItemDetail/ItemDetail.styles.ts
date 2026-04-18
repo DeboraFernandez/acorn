@@ -24,13 +24,13 @@ export const styles = StyleSheet.create({
     gap: 12,
   },
   title: {
-    fontFamily: fonts.family.heading,
+    fontFamily: fonts.family.title.bold,
     fontSize: fonts.size.lg,
     color: colors.brown,
   },
   subtitle: {
     marginTop: 4,
-    fontFamily: fonts.family.primary,
+    fontFamily: fonts.family.primary.regular,
     fontSize: fonts.size.sm,
     color: colors.brownMid,
   },
@@ -46,12 +46,12 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   rowTitle: {
-    fontFamily: fonts.family.primary,
+    fontFamily: fonts.family.primary.regular,
     fontSize: fonts.size.sm,
     color: colors.brownMid,
   },
   paragraph: {
-    fontFamily: fonts.family.primary,
+    fontFamily: fonts.family.primary.regular,
     fontSize: fonts.size.md,
     color: colors.black,
     lineHeight: 20,
@@ -69,7 +69,7 @@ export const styles = StyleSheet.create({
   },
   tagChipText: {
     color: colors.white,
-    fontFamily: fonts.family.primary,
+    fontFamily: fonts.family.primary.regular,
     fontSize: fonts.size.sm,
   },
   input: {
@@ -81,7 +81,7 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.white,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    fontFamily: fonts.family.primary,
+    fontFamily: fonts.family.primary.regular,
     fontSize: fonts.size.md,
     color: colors.black,
   },
@@ -96,14 +96,14 @@ export const styles = StyleSheet.create({
     marginTop: 16,
   },
   switchLabel: {
-    fontFamily: fonts.family.primary,
+    fontFamily: fonts.family.primary.regular,
     fontSize: fonts.size.md,
     color: colors.black,
   },
   error: {
     marginTop: 10,
     color: '#8b2a1b',
-    fontFamily: fonts.family.primary,
+    fontFamily: fonts.family.primary.regular,
     fontSize: fonts.size.sm,
   },
   footerRow: {
@@ -135,7 +135,7 @@ export const styles = StyleSheet.create({
   },
   removeTagText: {
     color: colors.white,
-    fontFamily: fonts.family.primary,
+    fontFamily: fonts.family.primary.regular,
     fontSize: fonts.size.sm,
   },
 });

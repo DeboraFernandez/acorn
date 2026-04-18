@@ -19,23 +19,23 @@ export const styles = StyleSheet.create({
     gap: 12,
   },
   title: {
-    fontFamily: fonts.family.heading,
+    fontFamily: fonts.family.title.bold,
     fontSize: fonts.size.lg,
     color: colors.brown,
   },
   subtitle: {
-    fontFamily: fonts.family.primary,
+    fontFamily: fonts.family.primary.regular,
     fontSize: fonts.size.md,
     color: colors.brownMid,
     lineHeight: 20,
   },
   error: {
-    fontFamily: fonts.family.primary,
+    fontFamily: fonts.family.primary.regular,
     fontSize: fonts.size.sm,
     color: '#8b2a1b',
   },
   success: {
-    fontFamily: fonts.family.primary,
+    fontFamily: fonts.family.primary.regular,
     fontSize: fonts.size.sm,
     color: '#2f6a3b',
   },
@@ -48,17 +48,17 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   previewTitle: {
-    fontFamily: fonts.family.heading,
+    fontFamily: fonts.family.title.bold,
     fontSize: fonts.size.md,
     color: colors.black,
   },
   previewDomain: {
-    fontFamily: fonts.family.primary,
+    fontFamily: fonts.family.primary.regular,
     fontSize: fonts.size.sm,
     color: colors.brownMid,
   },
   previewUrl: {
-    fontFamily: fonts.family.primary,
+    fontFamily: fonts.family.primary.regular,
     fontSize: fonts.size.sm,
     color: colors.salmon,
   },

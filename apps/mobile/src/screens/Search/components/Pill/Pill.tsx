@@ -1,12 +1,18 @@
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { SvgProps } from 'react-native-svg';
 import { colors } from '../../../../theme/colors';
 import { styles } from './Pill.styles';
 
+type IconProps = {
+  width?: number;
+  height?: number;
+  fill?: string;
+  color?: string;
+};
+
 type PillProps = {
   label?: string;
-  icon?: React.FC<SvgProps>;
+  icon?: React.ComponentType<IconProps>;
   active: boolean;
   onPress: () => void;
   variant?: 'default' | 'filter';

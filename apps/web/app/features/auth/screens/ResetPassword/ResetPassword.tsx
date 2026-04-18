@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getSupabaseBrowserClient } from '../../../../lib/supabase'
 import { AuthShell } from '../../components/AuthShell/AuthShell'
@@ -127,6 +127,11 @@ export function ResetPassword() {
     }, 1400)
   }
 
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    await handleUpdatePassword()
+  }
+
   return (
     <AuthShell
       badge='Nueva contrasena'
@@ -137,49 +142,74 @@ export function ResetPassword() {
       footerLinkLabel='Solicitar de nuevo'
       errorMessage={errorMessage}
     >
-      <input
-        type='password'
-        placeholder='Nueva contrasena'
-        value={password}
-        onChange={(event) => setPassword(event.target.value)}
-        disabled={initializing || loading}
-        style={{
-          ...resetPasswordStyles.input,
-          ...(passwordError ? resetPasswordStyles.inputError : {})
-        }}
-      />
-      {passwordError ? <p style={resetPasswordStyles.fieldError}>{passwordError}</p> : null}
+      <form style={resetPasswordStyles.fieldGroup} onSubmit={handleSubmit}>
+        <div style={resetPasswordStyles.fieldGroup}>
+          <label htmlFor='reset-password' style={resetPasswordStyles.label}>
+            Nueva contrasena
+          </label>
+          <input
+            id='reset-password'
+            type='password'
+            placeholder='Nueva contrasena'
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            autoComplete='new-password'
+            disabled={initializing || loading}
+            aria-invalid={Boolean(passwordError)}
+            aria-describedby={passwordError ? 'reset-password-error' : undefined}
+            style={{
+              ...resetPasswordStyles.input,
+              ...(passwordError ? resetPasswordStyles.inputError : {})
+            }}
+          />
+          {passwordError ? (
+            <p id='reset-password-error' style={resetPasswordStyles.fieldError} role='alert'>
+              {passwordError}
+            </p>
+          ) : null}
+        </div>
 
-      <input
-        type='password'
-        placeholder='Confirmar contrasena'
-        value={confirmPassword}
-        onChange={(event) => setConfirmPassword(event.target.value)}
-        disabled={initializing || loading}
-        style={{
-          ...resetPasswordStyles.input,
-          ...(confirmPasswordError ? resetPasswordStyles.inputError : {})
-        }}
-      />
-      {confirmPasswordError ? (
-        <p style={resetPasswordStyles.fieldError}>{confirmPasswordError}</p>
-      ) : null}
+        <div style={resetPasswordStyles.fieldGroup}>
+          <label htmlFor='reset-password-confirm' style={resetPasswordStyles.label}>
+            Confirmar contrasena
+          </label>
+          <input
+            id='reset-password-confirm'
+            type='password'
+            placeholder='Confirmar contrasena'
+            value={confirmPassword}
+            onChange={(event) => setConfirmPassword(event.target.value)}
+            autoComplete='new-password'
+            disabled={initializing || loading}
+            aria-invalid={Boolean(confirmPasswordError)}
+            aria-describedby={confirmPasswordError ? 'reset-password-confirm-error' : undefined}
+            style={{
+              ...resetPasswordStyles.input,
+              ...(confirmPasswordError ? resetPasswordStyles.inputError : {})
+            }}
+          />
+          {confirmPasswordError ? (
+            <p id='reset-password-confirm-error' style={resetPasswordStyles.fieldError} role='alert'>
+              {confirmPasswordError}
+            </p>
+          ) : null}
+        </div>
 
-      <button
-        type='button'
-        onClick={handleUpdatePassword}
-        disabled={initializing || loading}
-        style={{
-          ...resetPasswordStyles.submitButton,
-          ...(initializing || loading ? resetPasswordStyles.submitButtonDisabled : {})
-        }}
-      >
-        {initializing
-          ? 'Validando enlace...'
-          : loading
-            ? 'Guardando nueva contrasena...'
-            : 'Guardar nueva contrasena'}
-      </button>
+        <button
+          type='submit'
+          disabled={initializing || loading}
+          style={{
+            ...resetPasswordStyles.submitButton,
+            ...(initializing || loading ? resetPasswordStyles.submitButtonDisabled : {})
+          }}
+        >
+          {initializing
+            ? 'Validando enlace...'
+            : loading
+              ? 'Guardando nueva contrasena...'
+              : 'Guardar nueva contrasena'}
+        </button>
+      </form>
 
       {successMessage ? <p style={resetPasswordStyles.successText}>{successMessage}</p> : null}
 
