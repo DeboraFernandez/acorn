@@ -16,3 +16,13 @@ body {
 a {
   color: inherit;
 }
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+a:focus-visible {
+  outline: 3px solid #8f3d25;
+  outline-offset: 2px;
+  border-radius: 8px;
+}

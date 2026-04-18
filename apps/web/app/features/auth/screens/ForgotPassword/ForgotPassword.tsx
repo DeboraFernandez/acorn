@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { FormEvent, useState } from 'react'
 import { AuthShell } from '../../components/AuthShell/AuthShell'
 import { getSupabaseBrowserClient } from '../../../../lib/supabase'
 import { forgotPasswordStyles } from './ForgotPassword.styles'
@@ -51,6 +51,11 @@ export function ForgotPassword() {
     setSent(true)
   }
 
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    await handleRequestReset()
+  }
+
   return (
     <AuthShell
       badge='Recuperacion'
@@ -61,30 +66,44 @@ export function ForgotPassword() {
       footerLinkLabel='Iniciar sesion'
       errorMessage={errorMessage}
     >
-      <input
-        type='email'
-        placeholder='tu@email.com'
-        value={email}
-        onChange={(event) => setEmail(event.target.value)}
-        style={{
-          ...forgotPasswordStyles.input,
-          ...(emailError ? forgotPasswordStyles.inputError : {})
-        }}
-      />
+      <form style={forgotPasswordStyles.fieldGroup} onSubmit={handleSubmit}>
+        <div style={forgotPasswordStyles.fieldGroup}>
+          <label htmlFor='forgot-email' style={forgotPasswordStyles.label}>
+            Email
+          </label>
+          <input
+            id='forgot-email'
+            type='email'
+            placeholder='tu@email.com'
+            value={email}
+            autoComplete='email'
+            onChange={(event) => setEmail(event.target.value)}
+            aria-invalid={Boolean(emailError)}
+            aria-describedby={emailError ? 'forgot-email-error' : undefined}
+            style={{
+              ...forgotPasswordStyles.input,
+              ...(emailError ? forgotPasswordStyles.inputError : {})
+            }}
+          />
 
-      {emailError ? <p style={forgotPasswordStyles.fieldError}>{emailError}</p> : null}
+          {emailError ? (
+            <p id='forgot-email-error' style={forgotPasswordStyles.fieldError} role='alert'>
+              {emailError}
+            </p>
+          ) : null}
+        </div>
 
-      <button
-        type='button'
-        onClick={handleRequestReset}
-        disabled={loading}
-        style={{
-          ...forgotPasswordStyles.submitButton,
-          ...(loading ? forgotPasswordStyles.submitButtonDisabled : {})
-        }}
-      >
-        {loading ? 'Enviando enlace...' : 'Enviar enlace de recuperacion'}
-      </button>
+        <button
+          type='submit'
+          disabled={loading}
+          style={{
+            ...forgotPasswordStyles.submitButton,
+            ...(loading ? forgotPasswordStyles.submitButtonDisabled : {})
+          }}
+        >
+          {loading ? 'Enviando enlace...' : 'Enviar enlace de recuperacion'}
+        </button>
+      </form>
 
       {sent ? (
         <p style={forgotPasswordStyles.successText}>

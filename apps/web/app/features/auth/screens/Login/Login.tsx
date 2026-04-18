@@ -1,7 +1,6 @@
 'use client'
 
-import { useState } from 'react'
-import { useEffect } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { getSupabaseBrowserClient } from '../../../../lib/supabase'
@@ -101,6 +100,11 @@ export function Login() {
     router.replace('/home')
   }
 
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    await handleEmailPasswordLogin()
+  }
+
   const handleGoogleOAuth = async () => {
     setLoading(true)
     setErrorMessage('')
@@ -144,41 +148,68 @@ export function Login() {
       footerLinkLabel='Registrate'
       errorMessage={errorMessage}
     >
-      <input
-        type='email'
-        placeholder='tu@email.com'
-        value={email}
-        onChange={(event) => setEmail(event.target.value)}
-        style={{
-          ...loginStyles.input,
-          ...(emailError ? loginStyles.inputError : {})
-        }}
-      />
-      {emailError ? <p style={loginStyles.fieldError}>{emailError}</p> : null}
+      <form style={loginStyles.fieldGroup} onSubmit={handleSubmit}>
+        <div style={loginStyles.fieldGroup}>
+          <label htmlFor='login-email' style={loginStyles.label}>
+            Email
+          </label>
+          <input
+            id='login-email'
+            type='email'
+            placeholder='tu@email.com'
+            value={email}
+            autoComplete='email'
+            onChange={(event) => setEmail(event.target.value)}
+            aria-invalid={Boolean(emailError)}
+            aria-describedby={emailError ? 'login-email-error' : undefined}
+            style={{
+              ...loginStyles.input,
+              ...(emailError ? loginStyles.inputError : {})
+            }}
+          />
+          {emailError ? (
+            <p id='login-email-error' style={loginStyles.fieldError} role='alert'>
+              {emailError}
+            </p>
+          ) : null}
+        </div>
 
-      <input
-        type='password'
-        placeholder='Tu contrasena'
-        value={password}
-        onChange={(event) => setPassword(event.target.value)}
-        style={{
-          ...loginStyles.input,
-          ...(passwordError ? loginStyles.inputError : {})
-        }}
-      />
-      {passwordError ? <p style={loginStyles.fieldError}>{passwordError}</p> : null}
+        <div style={loginStyles.fieldGroup}>
+          <label htmlFor='login-password' style={loginStyles.label}>
+            Contrasena
+          </label>
+          <input
+            id='login-password'
+            type='password'
+            placeholder='Tu contrasena'
+            value={password}
+            autoComplete='current-password'
+            onChange={(event) => setPassword(event.target.value)}
+            aria-invalid={Boolean(passwordError)}
+            aria-describedby={passwordError ? 'login-password-error' : undefined}
+            style={{
+              ...loginStyles.input,
+              ...(passwordError ? loginStyles.inputError : {})
+            }}
+          />
+          {passwordError ? (
+            <p id='login-password-error' style={loginStyles.fieldError} role='alert'>
+              {passwordError}
+            </p>
+          ) : null}
+        </div>
 
-      <button
-        type='button'
-        onClick={handleEmailPasswordLogin}
-        disabled={loading}
-        style={{
-          ...loginStyles.submitButton,
-          ...(loading ? loginStyles.submitButtonDisabled : {})
-        }}
-      >
-        {loading ? 'Iniciando sesion...' : 'Iniciar sesion'}
-      </button>
+        <button
+          type='submit'
+          disabled={loading}
+          style={{
+            ...loginStyles.submitButton,
+            ...(loading ? loginStyles.submitButtonDisabled : {})
+          }}
+        >
+          {loading ? 'Iniciando sesion...' : 'Iniciar sesion'}
+        </button>
+      </form>
 
       <div style={loginStyles.dividerRow}>
         <span style={loginStyles.dividerLine} />

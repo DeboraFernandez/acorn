@@ -2,6 +2,17 @@ import { colors } from '../../../../theme/colors'
 import { fonts } from '../../../../theme/fonts'
 
 export const resetPasswordStyles = {
+  fieldGroup: {
+    display: 'grid',
+    gap: '6px'
+  },
+  label: {
+    margin: 0,
+    color: colors.brown,
+    fontFamily: fonts.family.primary,
+    fontSize: fonts.size.sm,
+    fontWeight: fonts.weight.semibold
+  },
   input: {
     width: '100%',
     minHeight: '46px',

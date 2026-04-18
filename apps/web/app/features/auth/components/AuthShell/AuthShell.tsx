@@ -32,7 +32,11 @@ export function AuthShell({
 
         <div style={authShellStyles.body}>{children}</div>
 
-        {errorMessage ? <p style={authShellStyles.error}>{errorMessage}</p> : null}
+        {errorMessage ? (
+          <p style={authShellStyles.error} role='alert' aria-live='assertive'>
+            {errorMessage}
+          </p>
+        ) : null}
 
         <p style={authShellStyles.footer}>
           {footerLabel}{' '}
