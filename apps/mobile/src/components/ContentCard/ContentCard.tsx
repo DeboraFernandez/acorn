@@ -1,8 +1,23 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, Linking } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  Linking,
+  ImageSourcePropType,
+  LayoutAnimation,
+  Platform,
+  UIManager,
+} from 'react-native';
 import { styles } from './ContentCard.styles';
 import { Button } from '../Button/Button';
 import { Tag } from '../Tag/Tag';
+
+if (Platform.OS === 'android') {
+  UIManager.setLayoutAnimationEnabledExperimental?.(true);
+}
+
 export interface ContentCardProps {
   id: string;
   title: string;
@@ -12,6 +27,7 @@ export interface ContentCardProps {
   status?: 'No visto' | 'Visto';
   url?: string;
   thumbnailUri?: string;
+  iconSource?: ImageSourcePropType;
   onOpenDetail?: (id: string) => void;
   onToggleRead?: (id: string, nextRead: boolean) => void;
 }
@@ -25,14 +41,29 @@ export function ContentCard({
   status = 'No visto',
   url,
   thumbnailUri,
+  iconSource,
   onOpenDetail,
   onToggleRead,
 }: ContentCardProps) {
   const [expanded, setExpanded] = useState(false);
   const isRead = status === 'Visto';
 
-  const handleOpenUrl = () => {
-    if (url) Linking.openURL(url);
+  const handleToggleExpanded = () => {
+    LayoutAnimation.configureNext({
+      duration: 150,
+      create: {
+        type: LayoutAnimation.Types.easeInEaseOut,
+        property: LayoutAnimation.Properties.opacity,
+      },
+      update: {
+        type: LayoutAnimation.Types.easeInEaseOut,
+      },
+      delete: {
+        type: LayoutAnimation.Types.easeInEaseOut,
+        property: LayoutAnimation.Properties.opacity,
+      },
+    });
+    setExpanded(!expanded);
   };
 
   const handleCopyUrl = () => {
@@ -44,7 +75,7 @@ export function ContentCard({
     <TouchableOpacity
       style={styles.card}
       activeOpacity={0.9}
-      onPress={() => setExpanded(!expanded)}
+      onPress={handleToggleExpanded}
       onLongPress={() => onOpenDetail?.(id)}
     >
       {/* Fila principal — siempre visible */}
@@ -52,11 +83,12 @@ export function ContentCard({
         <View style={styles.thumbnail}>
           {thumbnailUri ? (
             <Image source={{ uri: thumbnailUri }} style={styles.thumbnailImage} />
+          ) : iconSource ? (
+            <Image source={iconSource} style={styles.thumbnailImage} />
           ) : (
             <View style={styles.thumbnailPlaceholder} />
           )}
         </View>
-
         <View style={styles.textLayout}>
           <Text style={styles.title} numberOfLines={expanded ? undefined : 2}>
             {title}
@@ -64,14 +96,12 @@ export function ContentCard({
           <Text style={styles.source}>{source}</Text>
           <Tag label={tag} />
         </View>
-
         <Text style={[styles.chevron, expanded && styles.chevronUp]}>›</Text>
       </View>
 
       {/* Sección expandida */}
       {expanded && (
         <View style={styles.expandedSection}>
-
           {/* Estado */}
           <View style={styles.metaRow}>
             <Text style={styles.metaLabel}>Estado:</Text>
@@ -85,7 +115,9 @@ export function ContentCard({
                 onPress={() => onToggleRead(id, !isRead)}
                 activeOpacity={0.7}
               >
-                <Text style={styles.readToggleText}>{isRead ? 'Marcar como no visto' : 'Marcar como visto'}</Text>
+                <Text style={styles.readToggleText}>
+                  {isRead ? 'Marcar como no visto' : 'Marcar como visto'}
+                </Text>
               </TouchableOpacity>
             ) : null}
           </View>
@@ -105,10 +137,7 @@ export function ContentCard({
           </View>
 
           {/* Botón abrir enlace */}
-          <Button
-            label="Abrir enlace original"
-            onPress={() => url && Linking.openURL(url)}
-          />
+          <Button label="Abrir enlace original" onPress={() => url && Linking.openURL(url)} />
           {onOpenDetail ? <Button label="Ver detalle" onPress={() => onOpenDetail(id)} /> : null}
         </View>
       )}
