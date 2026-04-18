@@ -1,7 +1,6 @@
 import React from 'react';
 import { supabase } from '../../../../lib/supabase';
-import { DateFilterValue, ReadFilterValue } from '../components/FilterPanel/FilterPanel';
-import type { SearchResult, SearchRow } from '../types';
+import type { DateFilterValue, ReadFilterValue, SearchResult, SearchRow } from '../types';
 
 const PAGE_SIZE = 15;
 
