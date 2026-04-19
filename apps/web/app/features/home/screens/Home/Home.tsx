@@ -43,6 +43,22 @@ function mapResource(row: ResourceRow): ResourceCard {
   }
 }
 
+function getInitials(email: string) {
+  const clean = email.trim()
+
+  if (!clean) {
+    return 'AC'
+  }
+
+  const parts = clean.split('@')[0]?.split(/[._-]/).filter(Boolean) ?? []
+
+  if (parts.length >= 2) {
+    return `${parts[0][0]}${parts[1][0]}`.toUpperCase()
+  }
+
+  return clean.slice(0, 2).toUpperCase()
+}
+
 export function Home() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
@@ -58,6 +74,8 @@ export function Home() {
   const sentinelRef = useRef<HTMLDivElement | null>(null)
 
   const currentPage = useMemo(() => page, [page])
+  const readCount = useMemo(() => resources.filter((resource) => resource.isRead).length, [resources])
+  const unreadCount = resources.length - readCount
 
   const fetchResourcesPage = async (currentCursor: Cursor | null) => {
     const supabase = getSupabaseBrowserClient()
@@ -229,15 +247,44 @@ export function Home() {
 
   return (
     <main style={homeStyles.page}>
-      <header style={homeStyles.header}>
-        <div style={homeStyles.headerTopRow}>
-          <h1 style={homeStyles.headerTitle}>Tus recursos</h1>
+      <header style={homeStyles.hero}>
+        <div style={homeStyles.heroTopRow}>
+          <div style={homeStyles.userPill}>
+            <span style={homeStyles.userPillAvatar}>{getInitials(email)}</span>
+            <p style={homeStyles.userPillText}>Sesion activa</p>
+          </div>
+
           <button type='button' style={homeStyles.signOutButton} onClick={handleSignOut}>
             Cerrar sesion
           </button>
         </div>
-        <p style={homeStyles.headerSubtitle}>Sesión activa como {email}. Página actual: {currentPage}</p>
+
+        <h1 style={homeStyles.heroTitle}>Tu biblioteca de recursos</h1>
+        <p style={homeStyles.heroSubtitle}>
+          Bienvenida, {email}. Explora tus enlaces guardados, continua donde lo dejaste y carga mas contenido sin
+          recargar la pagina.
+        </p>
+
+        <div style={homeStyles.metricsRow}>
+          <article style={homeStyles.metricCard}>
+            <p style={homeStyles.metricLabel}>Total</p>
+            <p style={homeStyles.metricValue}>{resources.length}</p>
+          </article>
+          <article style={homeStyles.metricCard}>
+            <p style={homeStyles.metricLabel}>No vistos</p>
+            <p style={homeStyles.metricValue}>{unreadCount}</p>
+          </article>
+          <article style={homeStyles.metricCard}>
+            <p style={homeStyles.metricLabel}>Pagina</p>
+            <p style={homeStyles.metricValue}>{currentPage}</p>
+          </article>
+        </div>
       </header>
+
+      <div style={homeStyles.sectionHeader}>
+        <h2 style={homeStyles.sectionTitle}>Listado</h2>
+        <p style={homeStyles.sectionMeta}>Leidos: {readCount}</p>
+      </div>
 
       {resources.length === 0 && !error ? (
         <section style={homeStyles.emptyState}>
@@ -248,12 +295,15 @@ export function Home() {
 
       {error ? <p style={homeStyles.errorText}>{error}</p> : null}
 
-      <section style={homeStyles.list}>
+      <section style={homeStyles.list} className='home-resource-grid'>
         {resources.map((resource) => (
           <article key={resource.id} style={homeStyles.resourceCard}>
-            <h2 style={homeStyles.resourceTitle}>{resource.title}</h2>
+            <div style={homeStyles.cardTopRow}>
+              <h2 style={homeStyles.resourceTitle}>{resource.title}</h2>
+              <span style={homeStyles.domainPill}>{resource.domain}</span>
+            </div>
             <p style={homeStyles.resourceMeta}>
-              {resource.domain} · Guardado {resource.createdAtLabel}
+              Guardado {resource.createdAtLabel}
             </p>
             <p style={homeStyles.resourceSnippet}>{resource.description}</p>
             <span style={homeStyles.statusBadge}>{resource.isRead ? 'Visto' : 'No visto'}</span>
@@ -262,7 +312,7 @@ export function Home() {
       </section>
 
       {loadingMore ? (
-        <section style={homeStyles.list} aria-label='Cargando siguiente pagina'>
+        <section style={homeStyles.list} className='home-resource-grid' aria-label='Cargando siguiente pagina'>
           {Array.from({ length: 3 }).map((_, index) => (
             <article key={`skeleton-${index}`} style={homeStyles.skeletonCard}>
               <div style={{ ...homeStyles.skeletonLine, ...homeStyles.skeletonLineLong }} />
@@ -281,9 +331,17 @@ export function Home() {
         ) : null}
 
         <div ref={sentinelRef} style={homeStyles.observerSentinel} aria-hidden />
+
+        {!hasMore && resources.length > 0 ? <p style={homeStyles.endText}>Has llegado al final del listado.</p> : null}
       </section>
 
       <style jsx>{`
+        @media (max-width: 900px) {
+          .home-resource-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
         @keyframes skeletonPulse {
           0% {
             background-position: 200% 0;
