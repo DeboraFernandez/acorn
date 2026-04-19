@@ -3,8 +3,8 @@ import { fonts } from '../../../../theme/fonts'
 
 export const homeStyles = {
   page: {
-    minHeight: '100dvh',
-    padding: 'clamp(14px, 4vw, 24px)',
+    minHeight: '100%',
+    padding: 'clamp(6px, 2vw, 12px)',
     display: 'grid',
     placeItems: 'center'
   },
