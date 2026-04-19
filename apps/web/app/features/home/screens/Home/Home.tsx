@@ -1,19 +1,106 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getSupabaseBrowserClient } from '../../../../lib/supabase'
 import { homeStyles } from './Home.styles'
+
+type ResourceRow = {
+  id: string
+  title: string | null
+  description: string | null
+  domain: string | null
+  url: string | null
+  created_at: string
+  is_read: boolean
+  tags: string[] | null
+}
+
+type ResourceCard = {
+  id: string
+  title: string
+  description: string
+  domain: string
+  createdAtLabel: string
+  isRead: boolean
+}
+
+type Cursor = {
+  createdAt: string
+  id: string
+}
+
+const PAGE_SIZE = 12
+
+function mapResource(row: ResourceRow): ResourceCard {
+  return {
+    id: row.id,
+    title: row.title?.trim() || row.domain || row.url || 'Recurso sin titulo',
+    description: row.description?.trim() || 'Sin descripcion disponible.',
+    domain: row.domain || 'Sin dominio',
+    createdAtLabel: new Date(row.created_at).toLocaleDateString(),
+    isRead: Boolean(row.is_read)
+  }
+}
 
 export function Home() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [email, setEmail] = useState('')
+  const [error, setError] = useState('')
+  const [resources, setResources] = useState<ResourceCard[]>([])
+  const [page, setPage] = useState(1)
+  const [cursor, setCursor] = useState<Cursor | null>(null)
+  const [hasMore, setHasMore] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+
+  const initialPageRef = useRef<number | null>(null)
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
+
+  const currentPage = useMemo(() => page, [page])
+
+  const fetchResourcesPage = async (currentCursor: Cursor | null) => {
+    const supabase = getSupabaseBrowserClient()
+
+    let query = supabase
+      .from('items_with_links')
+      .select('id,title,description,domain,url,created_at,is_read,tags')
+      .order('created_at', { ascending: false })
+      .order('id', { ascending: false })
+      .limit(PAGE_SIZE)
+
+    if (currentCursor) {
+      query = query.or(
+        `created_at.lt.${currentCursor.createdAt},and(created_at.eq.${currentCursor.createdAt},id.lt.${currentCursor.id})`
+      )
+    }
+
+    const { data, error: queryError } = await query
+
+    if (queryError) {
+      throw queryError
+    }
+
+    const rows = (data ?? []) as ResourceRow[]
+    const mapped = rows.map(mapResource)
+    const lastRow = rows[rows.length - 1]
+
+    return {
+      resources: mapped,
+      nextCursor: lastRow
+        ? {
+            createdAt: lastRow.created_at,
+            id: lastRow.id
+          }
+        : null,
+      hasMore: rows.length === PAGE_SIZE
+    }
+  }
 
   useEffect(() => {
     let active = true
 
-    const loadUser = async () => {
+    const loadInitialState = async () => {
       const supabase = getSupabaseBrowserClient()
       const { data, error } = await supabase.auth.getUser()
 
@@ -27,15 +114,104 @@ export function Home() {
       }
 
       setEmail(data.user.email ?? 'usuario')
+      setError('')
+
+      if (initialPageRef.current === null) {
+        const rawPage = Number(new URLSearchParams(window.location.search).get('page') || '1')
+        initialPageRef.current = Number.isFinite(rawPage) && rawPage > 1 ? Math.floor(rawPage) : 1
+      }
+
+      const targetPage = initialPageRef.current ?? 1
+      let localCursor: Cursor | null = null
+      let localResources: ResourceCard[] = []
+      let localHasMore = true
+
+      for (let i = 1; i <= targetPage; i += 1) {
+        const pagePayload = await fetchResourcesPage(localCursor)
+        localResources = [...localResources, ...pagePayload.resources]
+        localCursor = pagePayload.nextCursor
+        localHasMore = pagePayload.hasMore
+
+        if (!localHasMore) {
+          break
+        }
+      }
+
+      if (!active) {
+        return
+      }
+
+      setResources(localResources)
+      setCursor(localCursor)
+      setHasMore(localHasMore)
+      setPage(targetPage)
       setLoading(false)
     }
 
-    loadUser()
+    loadInitialState().catch(() => {
+      if (!active) {
+        return
+      }
+
+      setError('No se pudieron cargar tus recursos. Intenta refrescar la pagina.')
+      setLoading(false)
+    })
 
     return () => {
       active = false
     }
   }, [router])
+
+  const handleLoadMore = useCallback(async () => {
+    if (!hasMore || loadingMore || loading) {
+      return
+    }
+
+    setLoadingMore(true)
+    setError('')
+
+    try {
+      const pagePayload = await fetchResourcesPage(cursor)
+      setResources((current) => [...current, ...pagePayload.resources])
+      setCursor(pagePayload.nextCursor)
+      setHasMore(pagePayload.hasMore)
+
+      const nextPage = page + 1
+      setPage(nextPage)
+      router.push(`/home?page=${nextPage}`)
+    } catch {
+      setError('No se pudo cargar la siguiente pagina. Intentalo de nuevo.')
+    } finally {
+      setLoadingMore(false)
+    }
+  }, [cursor, hasMore, loading, loadingMore, page, router])
+
+  useEffect(() => {
+    const target = sentinelRef.current
+
+    if (!target) {
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries
+
+        if (entry?.isIntersecting) {
+          void handleLoadMore()
+        }
+      },
+      {
+        rootMargin: '240px 0px'
+      }
+    )
+
+    observer.observe(target)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [handleLoadMore])
 
   const handleSignOut = async () => {
     const supabase = getSupabaseBrowserClient()
@@ -53,13 +229,70 @@ export function Home() {
 
   return (
     <main style={homeStyles.page}>
-      <section style={homeStyles.card}>
-        <h1 style={homeStyles.title}>Sesion iniciada correctamente</h1>
-        <p style={homeStyles.text}>Bienvenida, {email}. Ya estas dentro de tu espacio privado.</p>
-        <button type='button' style={homeStyles.button} onClick={handleSignOut}>
-          Cerrar sesion
-        </button>
+      <header style={homeStyles.header}>
+        <div style={homeStyles.headerTopRow}>
+          <h1 style={homeStyles.headerTitle}>Tus recursos</h1>
+          <button type='button' style={homeStyles.signOutButton} onClick={handleSignOut}>
+            Cerrar sesion
+          </button>
+        </div>
+        <p style={homeStyles.headerSubtitle}>Sesión activa como {email}. Página actual: {currentPage}</p>
+      </header>
+
+      {resources.length === 0 && !error ? (
+        <section style={homeStyles.emptyState}>
+          <h2 style={homeStyles.emptyTitle}>Aún no tienes recursos</h2>
+          <p style={homeStyles.emptyText}>Guarda tu primer enlace para empezar a construir tu biblioteca.</p>
+        </section>
+      ) : null}
+
+      {error ? <p style={homeStyles.errorText}>{error}</p> : null}
+
+      <section style={homeStyles.list}>
+        {resources.map((resource) => (
+          <article key={resource.id} style={homeStyles.resourceCard}>
+            <h2 style={homeStyles.resourceTitle}>{resource.title}</h2>
+            <p style={homeStyles.resourceMeta}>
+              {resource.domain} · Guardado {resource.createdAtLabel}
+            </p>
+            <p style={homeStyles.resourceSnippet}>{resource.description}</p>
+            <span style={homeStyles.statusBadge}>{resource.isRead ? 'Visto' : 'No visto'}</span>
+          </article>
+        ))}
       </section>
+
+      {loadingMore ? (
+        <section style={homeStyles.list} aria-label='Cargando siguiente pagina'>
+          {Array.from({ length: 3 }).map((_, index) => (
+            <article key={`skeleton-${index}`} style={homeStyles.skeletonCard}>
+              <div style={{ ...homeStyles.skeletonLine, ...homeStyles.skeletonLineLong }} />
+              <div style={{ ...homeStyles.skeletonLine, ...homeStyles.skeletonLineMedium }} />
+              <div style={{ ...homeStyles.skeletonLine, ...homeStyles.skeletonLineShort }} />
+            </article>
+          ))}
+        </section>
+      ) : null}
+
+      <section style={homeStyles.bottomArea}>
+        {hasMore ? (
+          <button type='button' style={homeStyles.loadMoreButton} onClick={() => void handleLoadMore()}>
+            Cargar mas
+          </button>
+        ) : null}
+
+        <div ref={sentinelRef} style={homeStyles.observerSentinel} aria-hidden />
+      </section>
+
+      <style jsx>{`
+        @keyframes skeletonPulse {
+          0% {
+            background-position: 200% 0;
+          }
+          100% {
+            background-position: -200% 0;
+          }
+        }
+      `}</style>
     </main>
   )
 }
