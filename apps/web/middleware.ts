@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const PROTECTED_PATH_PREFIXES = ['/home']
+const PROTECTED_PATH_PREFIXES = ['/home', '/search', '/folders', '/profile']
 const AUTH_PATH_PREFIXES = ['/login', '/register', '/forgot-password', '/auth/reset-password']
 
 function isPathInPrefixes(pathname: string, prefixes: string[]) {
