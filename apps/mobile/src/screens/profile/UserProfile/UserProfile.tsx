@@ -31,12 +31,11 @@ export default function EditProfileScreen({ onGoBack }: EditProfileScreenProps) 
 
   const handlePickAvatar = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.8,
     });
-
     if (!result.canceled) {
       setAvatarUri(result.assets[0].uri);
     }

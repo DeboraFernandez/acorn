@@ -124,14 +124,7 @@ export default function ProfileScreen({
               icon="warning"
               onPress={() =>
                 router.push({
-                  pathname: '/(app)/(profile)/confirm-modal',
-                  params: {
-                    title: '¿Eliminar cuenta?',
-                    subtitle: 'Esta acción es irreversible y perderás todos tus datos.',
-                    confirmLabel: 'Eliminar cuenta',
-                    action: 'deleteAccount',
-                    danger: 'true',
-                  },
+                  pathname: '/(app)/(profile)/delete-account',
                 })
               }
             />
