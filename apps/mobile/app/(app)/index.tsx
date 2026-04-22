@@ -18,7 +18,6 @@ export default function HomeRoute() {
   }, []);
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
 
       <HomeScreen
         userName={session?.user.email ?? 'Usuario'}
@@ -26,6 +25,5 @@ export default function HomeRoute() {
         onSharedUrlHandled={() => setSharedUrl(null)}
         onSearchPress={() => router.push('/(app)/search')}
       />
-    </View>
   );
 }
