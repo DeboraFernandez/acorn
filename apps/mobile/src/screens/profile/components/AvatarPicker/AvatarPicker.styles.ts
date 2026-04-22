@@ -13,7 +13,7 @@ export const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: colors.brown,
     overflow: 'hidden',
-    shadowColor: '#000',
+    shadowColor: colors.salmon,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
