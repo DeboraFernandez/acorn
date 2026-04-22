@@ -8,6 +8,7 @@ import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { useState } from 'react';
 import { supabase } from '@lib/supabase';
 import { Keyboard, TouchableWithoutFeedback, View } from 'react-native';
+import { NavBarHeightProvider } from '@context/NavBarHeightContext';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -22,24 +23,21 @@ function AuthGate() {
       setInitialized(true);
       return;
     }
-
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setInitialized(true);
     });
-
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, nextSession: Session | null) => {
       setSession(nextSession);
     });
-
     return () => subscription.unsubscribe();
   }, []);
+
   useEffect(() => {
     if (!initialized) return;
     const inAuthGroup = segments[0] === '(auth)';
-
     if (!session && !inAuthGroup) {
       router.replace('/(auth)/login');
     } else if (session && inAuthGroup) {
@@ -73,8 +71,10 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <AuthGate />
-      <StatusBar style="dark" translucent backgroundColor="transparent" />
+      <NavBarHeightProvider>
+        <AuthGate />
+        <StatusBar style="dark" translucent backgroundColor="transparent" />
+      </NavBarHeightProvider>
     </SafeAreaProvider>
   );
 }
