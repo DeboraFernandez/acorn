@@ -17,14 +17,6 @@ export default function AppLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="search" />
         <Stack.Screen name="(profile)" />
-        <Stack.Screen
-          name="confirm-modal"
-          options={{
-            presentation: 'transparentModal',
-            animation: 'slide_from_bottom',
-            contentStyle: { backgroundColor: 'transparent' },
-          }}
-        />
       </Stack>
       {!modalActive && (
         <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}>
