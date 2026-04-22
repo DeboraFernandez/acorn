@@ -26,7 +26,7 @@ export default function AppLayout() {
           onLayout={(e) => setHeight(e.nativeEvent.layout.height)}
         >
           <NavBar
-            onHomePress={() => router.replace('/(app)/')}
+            onHomePress={() => router.dismissAll()}
             onAddPress={() =>
               Alert.alert('Guardar recurso', 'Elige el tipo de contenido', [
                 { text: 'Enlace', onPress: () => {} },
