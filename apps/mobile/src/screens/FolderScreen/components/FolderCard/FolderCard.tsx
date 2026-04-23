@@ -1,16 +1,34 @@
-import { Image, Text, TouchableOpacity, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Dimensions, Image, Text, TouchableOpacity, View } from 'react-native';
 import { styles } from './FolderCard.styles';
 import FolderBrownIcon from '@assets/icons/folder-brown-icon.svg';
+import { FolderOptionsMenu } from '../FolderOptionsMenu/FolderOptionsMenu';
 
 type FolderCardProps = {
   name: string;
   subtitle: string;
   iconSource?: number;
   onPress: () => void;
-  onOptions: () => void;
+  onRename: () => void;
+  onDelete: () => void;
 };
 
-export function FolderCard({ name, subtitle, iconSource, onPress, onOptions }: FolderCardProps) {
+export function FolderCard({ name, subtitle, iconSource, onPress, onRename, onDelete }: FolderCardProps) {
+  const menuButtonRef = useRef<View>(null);
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
+
+  const handleMenuPress = () => {
+    menuButtonRef.current?.measure((_x, _y, width, height, pageX, pageY) => {
+      const screenWidth = Dimensions.get('window').width;
+      setMenuPos({
+        top: pageY + height + 4,
+        right: screenWidth - pageX - width,
+      });
+      setMenuVisible(true);
+    });
+  };
+
   return (
     <TouchableOpacity style={styles.card} activeOpacity={0.85} onPress={onPress}>
       {iconSource ? (
@@ -28,14 +46,31 @@ export function FolderCard({ name, subtitle, iconSource, onPress, onOptions }: F
           {subtitle}
         </Text>
       </View>
-      <TouchableOpacity
-        style={styles.menuButton}
-        activeOpacity={0.7}
-        onPress={onOptions}
-        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-      >
-        <Text style={styles.menuIcon}>⋮</Text>
-      </TouchableOpacity>
+      <View ref={menuButtonRef}>
+        <TouchableOpacity
+          style={styles.menuButton}
+          activeOpacity={0.7}
+          onPress={handleMenuPress}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Text style={styles.menuIcon}>⋮</Text>
+        </TouchableOpacity>
+      </View>
+
+      <FolderOptionsMenu
+        visible={menuVisible}
+        top={menuPos.top}
+        right={menuPos.right}
+        onRename={() => {
+          setMenuVisible(false);
+          onRename();
+        }}
+        onDelete={() => {
+          setMenuVisible(false);
+          onDelete();
+        }}
+        onDismiss={() => setMenuVisible(false)}
+      />
     </TouchableOpacity>
   );
 }

@@ -24,6 +24,7 @@ export function useFolders() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
   const [builderOpen, setBuilderOpen] = useState(false);
+  const [renamingFolder, setRenamingFolder] = useState<FolderData | null>(null);
 
   const fetchFolders = useCallback(async (mode: 'initial' | 'refresh') => {
     if (mode === 'initial') setLoading(true);
@@ -64,16 +65,10 @@ export function useFolders() {
   }, [fetchFolders]);
 
   const onNewFolder = () => setBuilderOpen(true);
-
   const onBuilderClose = () => setBuilderOpen(false);
-
   const onBuilderCreated = () => {
     setBuilderOpen(false);
     void fetchFolders('refresh');
-  };
-
-  const onFolderOptions = (_id: string) => {
-    // TODO: abrir bottom sheet de opciones
   };
 
   const onFolderPress = (id: string) => {
@@ -82,17 +77,68 @@ export function useFolders() {
 
   const onRefresh = () => void fetchFolders('refresh');
 
+  const onRenameFolder = (id: string) => {
+    const folder = folders.find((f) => f.id === id);
+    if (folder) setRenamingFolder(folder);
+  };
+
+  const onRenameClose = () => setRenamingFolder(null);
+
+  const onRenameConfirmed = async (newName: string) => {
+    if (!renamingFolder) return;
+
+    const slug = newName
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+
+    const { error: updateError } = await supabase
+      .from('smart_folders')
+      .update({ name: newName, slug })
+      .eq('id', renamingFolder.id);
+
+    if (updateError) {
+      setError('No se pudo renombrar la carpeta.');
+      return;
+    }
+
+    setRenamingFolder(null);
+    void fetchFolders('refresh');
+  };
+
+  const onDeleteFolder = async (id: string) => {
+    const { error: deleteError } = await supabase
+      .from('smart_folders')
+      .delete()
+      .eq('id', id);
+
+    if (deleteError) {
+      setError('No se pudo eliminar la carpeta.');
+      return;
+    }
+
+    void fetchFolders('refresh');
+  };
+
   return {
     folders,
     loading,
     refreshing,
     error,
     builderOpen,
+    renamingFolder,
     onNewFolder,
     onBuilderClose,
     onBuilderCreated,
-    onFolderOptions,
     onFolderPress,
     onRefresh,
+    onRenameFolder,
+    onRenameClose,
+    onRenameConfirmed,
+    onDeleteFolder,
   };
 }

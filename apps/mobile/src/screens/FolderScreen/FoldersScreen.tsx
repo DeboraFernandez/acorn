@@ -12,6 +12,7 @@ import {
 import { styles } from './FoldersScreen.styles';
 import { FolderCard } from './components/FolderCard/FolderCard';
 import { NewFolderModal } from './components/NewFolderModal/NewFolderModal';
+import { RenameFolderModal } from './components/RenameFolderModal/RenameFolderModal';
 import { colors } from '../../theme/colors';
 import type { FolderData } from './FoldersScreen.types';
 import FolderDecoration from '@assets/svg/folder-decoration.svg';
@@ -22,12 +23,16 @@ type FoldersScreenProps = {
   refreshing: boolean;
   error: string;
   builderOpen: boolean;
+  renamingFolder: FolderData | null;
   onNewFolder: () => void;
   onBuilderClose: () => void;
   onBuilderCreated: () => void;
-  onFolderOptions: (id: string) => void;
   onFolderPress: (id: string) => void;
   onRefresh: () => void;
+  onRenameFolder: (id: string) => void;
+  onRenameClose: () => void;
+  onRenameConfirmed: (newName: string) => void;
+  onDeleteFolder: (id: string) => void;
 };
 
 export function FoldersScreen({
@@ -36,12 +41,16 @@ export function FoldersScreen({
   refreshing,
   error,
   builderOpen,
+  renamingFolder,
   onNewFolder,
   onBuilderClose,
   onBuilderCreated,
-  onFolderOptions,
   onFolderPress,
   onRefresh,
+  onRenameFolder,
+  onRenameClose,
+  onRenameConfirmed,
+  onDeleteFolder,
 }: FoldersScreenProps) {
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
@@ -79,7 +88,8 @@ export function FoldersScreen({
               <FolderCard
                 {...item}
                 onPress={() => onFolderPress(item.id)}
-                onOptions={() => onFolderOptions(item.id)}
+                onRename={() => onRenameFolder(item.id)}
+                onDelete={() => onDeleteFolder(item.id)}
               />
               {index < folders.length - 1 && <View style={styles.separator} />}
             </View>
@@ -111,6 +121,12 @@ export function FoldersScreen({
         {renderContent()}
       </ScrollView>
       <NewFolderModal visible={builderOpen} onClose={onBuilderClose} onCreated={onBuilderCreated} />
+      <RenameFolderModal
+        visible={renamingFolder !== null}
+        currentName={renamingFolder?.name ?? ''}
+        onClose={onRenameClose}
+        onRenamed={onRenameConfirmed}
+      />
     </View>
   );
 }
