@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Animated, Dimensions, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Animated, Dimensions, Keyboard, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavBarHeight } from '@context/NavBarHeightContext';
 import { supabase } from '@lib/supabase';
@@ -31,6 +31,20 @@ export function NewFolderModal({ visible, onClose, onCreated }: NewFolderModalPr
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    const show = Keyboard.addListener('keyboardWillShow', (e) => {
+      setKeyboardHeight(e.endCoordinates.height);
+    });
+    const hide = Keyboard.addListener('keyboardWillHide', () => {
+      setKeyboardHeight(0);
+    });
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
 
   useEffect(() => {
     if (visible) {
@@ -107,7 +121,9 @@ export function NewFolderModal({ visible, onClose, onCreated }: NewFolderModalPr
           styles.sheet,
           {
             transform: [{ translateY }],
-            paddingBottom: insets.bottom + navBarHeight + 16,
+            paddingBottom: keyboardHeight > 0
+              ? keyboardHeight + 32
+              : insets.bottom + navBarHeight + 16,
           },
         ]}
       >
