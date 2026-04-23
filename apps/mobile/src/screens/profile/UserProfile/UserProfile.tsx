@@ -17,9 +17,8 @@ type EditProfileScreenProps = {
 export default function EditProfileScreen({ onGoBack }: EditProfileScreenProps) {
   const {
     name,
-    setName,
-    username,
-    setUsername,
+    handleNameChange,
+    handleNameBlur,
     email,
     setEmail,
     avatarUri,
@@ -61,18 +60,10 @@ export default function EditProfileScreen({ onGoBack }: EditProfileScreenProps) 
             <Input
               label="Nombre"
               value={name}
-              onChangeText={setName}
+              onChangeText={handleNameChange}
+              onBlur={handleNameBlur}
               error={errors.name}
               placeholder="Tu nombre"
-            />
-
-            <Input
-              label="Nombre de usuario"
-              value={username}
-              onChangeText={setUsername}
-              error={errors.username}
-              placeholder="tu_usuario"
-              autoCapitalize="none"
             />
 
             <Input

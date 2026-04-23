@@ -1,24 +1,42 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { supabase } from '../../../../lib/supabase';
+import { formatDisplayName, sanitizeDisplayName } from '../../../utils/formatDisplayName';
 
 type EditProfileErrors = {
   name?: string;
-  username?: string;
   email?: string;
   general?: string;
 };
 
 export function useEditProfile() {
   const [name, setName] = useState('');
-  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [errors, setErrors] = useState<EditProfileErrors>({});
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    const loadProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      setEmail(user.email ?? '');
+
+      const { data } = await supabase
+        .from('profiles')
+        .select('display_name')
+        .eq('id', user.id)
+        .single();
+
+      if (data?.display_name) setName(data.display_name);
+    };
+
+    loadProfile();
+  }, []);
+
   const validate = (): boolean => {
     const newErrors: EditProfileErrors = {};
     if (!name.trim()) newErrors.name = 'El nombre es obligatorio';
-    if (!username.trim()) newErrors.username = 'El nombre de usuario es obligatorio';
     if (!email.trim()) newErrors.email = 'El correo es obligatorio';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -28,8 +46,15 @@ export function useEditProfile() {
     if (!validate()) return;
     setLoading(true);
     try {
-      // TODO: llamada a Supabase para actualizar perfil + subir avatar
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // placeholder
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user');
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ display_name: name.trim() })
+        .eq('id', user.id);
+
+      if (error) throw error;
     } catch {
       setErrors({ general: 'Error al guardar los cambios' });
     } finally {
@@ -37,11 +62,13 @@ export function useEditProfile() {
     }
   };
 
+  const handleNameChange = (text: string) => setName(sanitizeDisplayName(text));
+  const handleNameBlur = () => setName(formatDisplayName(name));
+
   return {
     name,
-    setName,
-    username,
-    setUsername,
+    handleNameChange,
+    handleNameBlur,
     email,
     setEmail,
     avatarUri,

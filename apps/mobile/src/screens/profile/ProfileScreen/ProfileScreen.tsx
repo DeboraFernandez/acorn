@@ -32,12 +32,14 @@ export default function ProfileScreen({
       } = await supabase.auth.getUser();
       if (!user) return;
 
-      const fullName = user.user_metadata?.full_name;
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('display_name')
+        .eq('id', user.id)
+        .single();
+
       setUserData({
-        name:
-          typeof fullName === 'string' && fullName.trim()
-            ? fullName.trim()
-            : (user.email ?? 'Usuario'),
+        name: profile?.display_name?.trim() || (user.email ?? 'Usuario'),
         email: user.email ?? '',
       });
     };
