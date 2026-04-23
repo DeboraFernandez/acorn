@@ -11,8 +11,10 @@ export default function AppLayout() {
 
   const currentRoute = segments[segments.length - 1];
   const searchActive = currentRoute === 'search';
+  const tagsActive = currentRoute === 'folders';
   const profileActive = segments.includes('(profile)');
   const modalActive = currentRoute === 'confirm-modal';
+  const homeActive = !searchActive && !tagsActive && !profileActive && !modalActive;
 
   return (
     <View style={{ flex: 1 }}>
@@ -39,9 +41,10 @@ export default function AppLayout() {
             onSearchPress={() => router.push('/(app)/search')}
             onTagsPress={() => router.push('/(app)/folders')}
             onProfilePress={() => router.push('/(app)/(profile)/')}
+            homeActive={homeActive}
             searchActive={searchActive}
             profileActive={profileActive}
-            tagsActive={currentRoute === 'folders'}
+            tagsActive={tagsActive}
           />
         </View>
       )}
