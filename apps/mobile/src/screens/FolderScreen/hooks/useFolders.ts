@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@lib/supabase';
 import type { FolderData } from '../FoldersScreen.types';
@@ -17,6 +18,7 @@ function mapFolder(row: SmartFolderRow): FolderData {
 }
 
 export function useFolders() {
+  const router = useRouter();
   const [folders, setFolders] = useState<FolderData[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -74,8 +76,8 @@ export function useFolders() {
     // TODO: abrir bottom sheet de opciones
   };
 
-  const onFolderPress = (_id: string) => {
-    // TODO: navegar al detalle de la carpeta
+  const onFolderPress = (id: string) => {
+    router.push(`/(app)/folders/${id}`);
   };
 
   const onRefresh = () => void fetchFolders('refresh');
