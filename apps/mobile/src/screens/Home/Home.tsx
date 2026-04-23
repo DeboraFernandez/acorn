@@ -104,6 +104,7 @@ export default function HomeScreen({
   const [loadingMore, setLoadingMore] = React.useState(false);
   const [refreshing, setRefreshing] = React.useState(false);
   const [listError, setListError] = React.useState('');
+  const [avatarUrl, setAvatarUrl] = React.useState<string | null>(null);
 
   const hasMoreRef = React.useRef(hasMore);
   const nextCursorRef = React.useRef(nextCursor);
@@ -126,6 +127,27 @@ export default function HomeScreen({
   React.useEffect(() => {
     refreshingRef.current = refreshing;
   }, [refreshing]);
+
+  React.useEffect(() => {
+    const loadAvatar = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('avatar_url')
+        .eq('id', user.id)
+        .single();
+
+      if (profile?.avatar_url) {
+        const { data: signed } = await supabase.storage
+          .from('user-files')
+          .createSignedUrl(profile.avatar_url, 3600);
+        if (signed?.signedUrl) setAvatarUrl(signed.signedUrl);
+      }
+    };
+    loadAvatar();
+  }, []);
 
   const fetchResources = React.useCallback(async (mode: 'initial' | 'refresh' | 'loadMore') => {
     if (
@@ -285,7 +307,8 @@ export default function HomeScreen({
             showOnboarding={showOnboarding}
             listError={listError}
             resources={resources}
-            onProfilePress={() => {}}
+            avatarUrl={avatarUrl}
+            onProfilePress={() => router.push('/(app)/(profile)/')}
             onOpenDetail={setSelectedItemId}
             onToggleRead={handleToggleRead}
           />

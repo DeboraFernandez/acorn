@@ -13,7 +13,7 @@ export function AvatarPicker({ uri, onPress }: AvatarPickerProps) {
     <View style={styles.wrapper}>
       <View style={styles.avatarContainer}>
         {uri ? (
-          <Image source={{ uri }} style={styles.avatar} />
+          <Image source={{ uri }} style={styles.avatar} resizeMode="cover" />
         ) : (
           <View style={styles.avatarPlaceholder} />
         )}

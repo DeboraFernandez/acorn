@@ -17,9 +17,8 @@ type EditProfileScreenProps = {
 export default function EditProfileScreen({ onGoBack }: EditProfileScreenProps) {
   const {
     name,
-    setName,
-    username,
-    setUsername,
+    handleNameChange,
+    handleNameBlur,
     email,
     setEmail,
     avatarUri,
@@ -36,7 +35,9 @@ export default function EditProfileScreen({ onGoBack }: EditProfileScreenProps) 
       aspect: [1, 1],
       quality: 0.8,
     });
+    console.log('[Avatar] ImagePicker result:', JSON.stringify(result));
     if (!result.canceled) {
+      console.log('[Avatar] Selected URI:', result.assets[0].uri);
       setAvatarUri(result.assets[0].uri);
     }
   };
@@ -61,18 +62,10 @@ export default function EditProfileScreen({ onGoBack }: EditProfileScreenProps) 
             <Input
               label="Nombre"
               value={name}
-              onChangeText={setName}
+              onChangeText={handleNameChange}
+              onBlur={handleNameBlur}
               error={errors.name}
               placeholder="Tu nombre"
-            />
-
-            <Input
-              label="Nombre de usuario"
-              value={username}
-              onChangeText={setUsername}
-              error={errors.username}
-              placeholder="tu_usuario"
-              autoCapitalize="none"
             />
 
             <Input
