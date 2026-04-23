@@ -48,11 +48,11 @@ export function NavBar({
           <FabIcon width={32} height={32} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem} activeOpacity={0.7} onPress={onTagsPress}>
-          <FolderIcon width={24} height={24} />
+          <FolderIcon width={20} height={20} />
           <Text style={[styles.navLabel, tagsActive ? styles.navLabelActive : null]}>Carpetas</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem} activeOpacity={0.7} onPress={onProfilePress}>
-          <ProfileIcon width={24} height={24} />
+          <ProfileIcon width={20} height={20} />
           <Text style={[styles.navLabel, profileActive ? styles.navLabelActive : null]}>
             Perfil
           </Text>
