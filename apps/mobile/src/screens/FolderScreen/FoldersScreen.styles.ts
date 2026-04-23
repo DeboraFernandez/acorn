@@ -4,32 +4,24 @@ import { colors } from '../../theme/colors';
 export const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: 'transparent',
   },
   scrollContent: {
     flexGrow: 1,
     paddingBottom: 32,
-    paddingHorizontal: 25,
-  },
-  scrollContentEmpty: {
-    flex: 1,
   },
 
   // ── Gradiente ──
   topGradient: {
     position: 'absolute',
     top: 0,
-    left: 0,
-    right: 0,
     width: '100%',
-    height: 220,
     zIndex: 0,
   },
-
   // ── Hero ──
   heroContainer: {
-    paddingTop: 16,
-    paddingBottom: 24,
+    paddingBottom: 10,
+    paddingHorizontal: 25,
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
@@ -41,8 +33,10 @@ export const styles = StyleSheet.create({
     color: colors.brown,
     lineHeight: 31,
     fontWeight: '700',
+    paddingTop: 20,
   },
   newFolderLink: {
+    paddingTop: 20,
     fontFamily: 'Satoshi-Regular',
     fontSize: 16,
     color: colors.brown,
@@ -50,14 +44,36 @@ export const styles = StyleSheet.create({
     letterSpacing: 0.32,
     marginTop: 4,
   },
-
+  // ── SVG pestaña ──
+  decorationShadowWrapper: {
+    marginLeft: 0,
+    marginRight: 0,
+    alignSelf: 'stretch',
+    shadowColor: colors.salmon,
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  // ── Contenedor carpetas ──
+  cardWrapper: {
+    top: -90,
+    flexGrow: 1,
+    backgroundColor: '#F3CCBE',
+    borderRadius: 20,
+    padding: 36,
+    shadowColor: colors.salmon,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 8,
+  },
   // ── Lista ──
   sectionTitle: {
     fontFamily: 'CabinetGrotesk-Medium',
     fontSize: 20,
     color: colors.brown,
     marginBottom: 16,
-    zIndex: 1,
   },
   separator: {
     height: 22,
@@ -68,7 +84,6 @@ export const styles = StyleSheet.create({
     color: '#8b2a1b',
     marginBottom: 10,
   },
-
   // ── Empty ──
   emptyState: {
     flex: 1,

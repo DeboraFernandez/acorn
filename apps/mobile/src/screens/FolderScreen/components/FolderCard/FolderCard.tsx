@@ -1,5 +1,6 @@
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { styles } from './FolderCard.styles';
+import FolderBrownIcon from '@assets/icons/folder-brown-icon.svg';
 
 type FolderCardProps = {
   name: string;
@@ -12,7 +13,13 @@ type FolderCardProps = {
 export function FolderCard({ name, subtitle, iconSource, onPress, onOptions }: FolderCardProps) {
   return (
     <TouchableOpacity style={styles.card} activeOpacity={0.85} onPress={onPress}>
-      {iconSource && <Image source={iconSource} style={styles.folderIcon} resizeMode="contain" />}
+      {iconSource ? (
+        <Image source={iconSource} style={styles.folderIcon} resizeMode="contain" />
+      ) : (
+        <View style={styles.folderIcon}>
+          <FolderBrownIcon width="100%" height="100%" />
+        </View>
+      )}
       <View style={styles.textBlock}>
         <Text style={styles.name} numberOfLines={1}>
           {name}
