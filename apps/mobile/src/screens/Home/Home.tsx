@@ -26,6 +26,7 @@ import { styles } from './Home.styles';
 import AcornEmpty from '../../../assets/svg/acorn-empty-state.svg';
 import { ContentCardData } from './Home.types';
 import { HomeHeader } from './components/HomeHeader/HomeHeader';
+import { useNavBarHeight } from '@context/NavBarHeightContext';
 
 type ResourceRow = {
   id: string;
@@ -47,7 +48,7 @@ type HomeScreenProps = {
   onSearchPress?: () => void;
 };
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 5;
 
 function formatSavedDate(isoDate: string) {
   const created = new Date(isoDate).getTime();
@@ -89,11 +90,11 @@ export default function HomeScreen({
   onSearchPress,
 }: HomeScreenProps) {
   const router = useRouter();
+  const { height: navBarHeight } = useNavBarHeight();
   const [saveLinkOpen, setSaveLinkOpen] = React.useState(false);
   const [saveFileOpen, setSaveFileOpen] = React.useState(false);
   const [tagsOpen, setTagsOpen] = React.useState(false);
   const [smartFoldersOpen, setSmartFoldersOpen] = React.useState(false);
-  //const [profileOpen, setProfileOpen] = React.useState(false);
   const [selectedItemId, setSelectedItemId] = React.useState<string | null>(null);
 
   const [resources, setResources] = React.useState<ContentCardData[]>([]);
@@ -217,6 +218,7 @@ export default function HomeScreen({
   const featured = resources.length >= 2 ? resources[0] : null;
   const listData = resources.length >= 2 ? resources.slice(1) : resources;
   const showOnboarding = !loadingInitial && resources.length <= 1;
+
   const handleToggleRead = async (itemId: string, nextRead: boolean) => {
     setResources((current) =>
       current.map((item) =>
@@ -272,7 +274,7 @@ export default function HomeScreen({
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
       <FlatList
         style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: navBarHeight + 20 }]}
         data={listData}
         keyExtractor={(item) => item.id}
         ListHeaderComponent={
@@ -283,9 +285,7 @@ export default function HomeScreen({
             showOnboarding={showOnboarding}
             listError={listError}
             resources={resources}
-            onProfilePress={() => {
-              /*setProfileOpen(true)*/
-            }}
+            onProfilePress={() => {}}
             onOpenDetail={setSelectedItemId}
             onToggleRead={handleToggleRead}
           />

@@ -2,10 +2,12 @@ import { Stack } from 'expo-router';
 import { View, Alert } from 'react-native';
 import { NavBar } from '@components/NavBar/NavBar';
 import { useRouter, useSegments } from 'expo-router';
+import { useNavBarHeight } from '@context/NavBarHeightContext';
 
 export default function AppLayout() {
   const router = useRouter();
   const segments = useSegments();
+  const { setHeight } = useNavBarHeight();
   const currentRoute = segments[segments.length - 1];
   const searchActive = currentRoute === 'search';
   const profileActive = segments.includes('(profile)');
@@ -17,19 +19,14 @@ export default function AppLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="search" />
         <Stack.Screen name="(profile)" />
-        <Stack.Screen
-          name="confirm-modal"
-          options={{
-            presentation: 'transparentModal',
-            animation: 'slide_from_bottom',
-            contentStyle: { backgroundColor: 'transparent' },
-          }}
-        />
       </Stack>
       {!modalActive && (
-        <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}>
+        <View
+          style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
+          onLayout={(e) => setHeight(e.nativeEvent.layout.height)}
+        >
           <NavBar
-            onHomePress={() => router.replace('/(app)/')}
+            onHomePress={() => router.dismissAll()}
             onAddPress={() =>
               Alert.alert('Guardar recurso', 'Elige el tipo de contenido', [
                 { text: 'Enlace', onPress: () => {} },

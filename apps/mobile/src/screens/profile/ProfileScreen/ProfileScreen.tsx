@@ -70,7 +70,6 @@ export default function ProfileScreen({
           <Text style={styles.userName}>{userData?.name ?? userName}</Text>
           <Text style={styles.userEmail}>{userData?.email ?? userEmail}</Text>
         </View>
-
         {/* Secciones */}
         <View style={styles.sections}>
           <ImageBackground
@@ -83,8 +82,16 @@ export default function ProfileScreen({
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Cuenta</Text>
             <View style={styles.sectionCard}>
-              <SectionButton label="Mi perfil" icon="user" onPress={onEditProfile} />
-              <SectionButton label="Cambiar contraseña" icon="lock" onPress={onChangePassword} />
+              <SectionButton
+                label="Mi perfil"
+                icon="user"
+                onPress={() => router.push('/(app)/(profile)/edit-profile')}
+              />
+              <SectionButton
+                label="Cambiar contraseña"
+                icon="lock"
+                onPress={() => router.push('/(app)/(profile)/reset-password')}
+              />
             </View>
           </View>
 
@@ -117,14 +124,7 @@ export default function ProfileScreen({
               icon="warning"
               onPress={() =>
                 router.push({
-                  pathname: '/(app)/(profile)/confirm-modal',
-                  params: {
-                    title: '¿Eliminar cuenta?',
-                    subtitle: 'Esta acción es irreversible y perderás todos tus datos.',
-                    confirmLabel: 'Eliminar cuenta',
-                    action: 'deleteAccount',
-                    danger: 'true',
-                  },
+                  pathname: '/(app)/(profile)/delete-account',
                 })
               }
             />
