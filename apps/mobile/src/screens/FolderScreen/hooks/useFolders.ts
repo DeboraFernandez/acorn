@@ -27,7 +27,7 @@ export function useFolders() {
   const [renamingFolder, setRenamingFolder] = useState<FolderData | null>(null);
   const [deletingFolderId, setDeletingFolderId] = useState<string | null>(null);
 
-  const fetchFolders = useCallback(async (mode: 'initial' | 'refresh') => {
+  const fetchFolders = useCallback(async (mode: 'initial' | 'refresh' | 'silent') => {
     if (mode === 'initial') setLoading(true);
     if (mode === 'refresh') setRefreshing(true);
 
@@ -69,7 +69,7 @@ export function useFolders() {
   const onBuilderClose = () => setBuilderOpen(false);
   const onBuilderCreated = () => {
     setBuilderOpen(false);
-    void fetchFolders('refresh');
+    void fetchFolders('silent');
   };
 
   const onFolderPress = (id: string) => {
@@ -108,7 +108,7 @@ export function useFolders() {
     }
 
     setRenamingFolder(null);
-    void fetchFolders('refresh');
+    void fetchFolders('silent');
   };
 
   const onDeleteFolder = async (id: string) => {
