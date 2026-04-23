@@ -48,7 +48,7 @@ type HomeScreenProps = {
   onSearchPress?: () => void;
 };
 
-const PAGE_SIZE = 4;
+const PAGE_SIZE = 5;
 
 function formatSavedDate(isoDate: string) {
   const created = new Date(isoDate).getTime();
