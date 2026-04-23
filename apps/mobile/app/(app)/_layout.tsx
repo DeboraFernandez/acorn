@@ -8,6 +8,7 @@ export default function AppLayout() {
   const router = useRouter();
   const segments = useSegments();
   const { setHeight } = useNavBarHeight();
+
   const currentRoute = segments[segments.length - 1];
   const searchActive = currentRoute === 'search';
   const profileActive = segments.includes('(profile)');
@@ -18,6 +19,7 @@ export default function AppLayout() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="search" />
+        <Stack.Screen name="folders" />
         <Stack.Screen name="(profile)" />
       </Stack>
       {!modalActive && (
@@ -35,11 +37,11 @@ export default function AppLayout() {
               ])
             }
             onSearchPress={() => router.push('/(app)/search')}
-            onTagsPress={() => {}}
+            onTagsPress={() => router.push('/(app)/folders')}
             onProfilePress={() => router.push('/(app)/(profile)/')}
             searchActive={searchActive}
             profileActive={profileActive}
-            tagsActive={false}
+            tagsActive={currentRoute === 'folders'}
           />
         </View>
       )}
