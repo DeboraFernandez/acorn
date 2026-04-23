@@ -23,7 +23,7 @@ export default function ProfileScreen({
 }: ProfileScreenProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [userData, setUserData] = React.useState<{ name: string; email: string } | null>(null);
+  const [userData, setUserData] = React.useState<{ name: string; email: string; avatarUrl: string | null } | null>(null);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -34,13 +34,21 @@ export default function ProfileScreen({
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('display_name')
+        .select('display_name, avatar_url')
         .eq('id', user.id)
         .single();
 
+      let avatarUrl: string | null = null;
+      if (profile?.avatar_url) {
+        const { data: signed } = await supabase.storage
+          .from('user-files')
+          .createSignedUrl(profile.avatar_url, 3600);
+        avatarUrl = signed?.signedUrl ?? null;
+      }
       setUserData({
         name: profile?.display_name?.trim() || (user.email ?? 'Usuario'),
         email: user.email ?? '',
+        avatarUrl,
       });
     };
 
@@ -63,8 +71,14 @@ export default function ProfileScreen({
           />
 
           <View style={styles.avatarContainer}>
-            {avatarUrl ? (
-              <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+            {userData?.avatarUrl ?? avatarUrl ? (
+              <Image
+                source={{ uri: (userData?.avatarUrl ?? avatarUrl)! }}
+                style={styles.avatar}
+                resizeMode="cover"
+                onError={(e) => console.log('[ProfileScreen] image error:', e.nativeEvent.error)}
+                onLoad={() => console.log('[ProfileScreen] image loaded ok')}
+              />
             ) : (
               <Image source={require('@assets/default-avatar.png')} style={styles.avatar} />
             )}

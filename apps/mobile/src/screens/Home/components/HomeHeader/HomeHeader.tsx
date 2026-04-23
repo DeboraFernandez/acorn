@@ -10,6 +10,7 @@ type HomeHeaderProps = {
   showOnboarding: boolean;
   listError: string;
   resources: ContentCardData[];
+  avatarUrl?: string | null;
   onProfilePress: () => void;
   onOpenDetail: (id: string) => void;
   onToggleRead: (id: string, nextRead: boolean) => void;
@@ -22,6 +23,7 @@ export function HomeHeader({
   showOnboarding,
   listError,
   resources,
+  avatarUrl,
   onProfilePress,
   onOpenDetail,
   onToggleRead,
@@ -48,11 +50,19 @@ export function HomeHeader({
             activeOpacity={0.8}
             onPress={onProfilePress}
           >
-            <Image
-              source={require('@assets/default-avatar.png')}
-              style={styles.avatarImage}
-              resizeMode="cover"
-            />
+            {avatarUrl ? (
+              <Image
+                source={{ uri: avatarUrl }}
+                style={styles.avatarImage}
+                resizeMode="cover"
+              />
+            ) : (
+              <Image
+                source={require('@assets/default-avatar.png')}
+                style={styles.avatarImage}
+                resizeMode="cover"
+              />
+            )}
           </TouchableOpacity>
         </View>
         <View style={styles.greetingSection}>

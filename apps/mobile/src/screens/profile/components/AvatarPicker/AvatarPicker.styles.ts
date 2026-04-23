@@ -5,11 +5,12 @@ export const styles = StyleSheet.create({
   wrapper: {
     alignSelf: 'center',
     marginBottom: 8,
+    marginTop: -10,
   },
   avatarContainer: {
-    width: 110,
-    height: 110,
-    borderRadius: 55,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     borderWidth: 2,
     borderColor: colors.brown,
     overflow: 'hidden',
@@ -22,9 +23,11 @@ export const styles = StyleSheet.create({
   avatar: {
     width: '100%',
     height: '100%',
+    resizeMode: 'cover',
   },
   avatarPlaceholder: {
-    flex: 1,
+    width: '100%',
+    height: '100%',
     backgroundColor: colors.salmon,
     opacity: 0.3,
   },
