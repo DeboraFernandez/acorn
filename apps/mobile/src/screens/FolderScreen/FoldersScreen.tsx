@@ -24,6 +24,7 @@ type FoldersScreenProps = {
   error: string;
   builderOpen: boolean;
   renamingFolder: FolderData | null;
+  deletingFolderId: string | null;
   onNewFolder: () => void;
   onBuilderClose: () => void;
   onBuilderCreated: () => void;
@@ -42,6 +43,7 @@ export function FoldersScreen({
   error,
   builderOpen,
   renamingFolder,
+  deletingFolderId,
   onNewFolder,
   onBuilderClose,
   onBuilderCreated,
@@ -87,6 +89,7 @@ export function FoldersScreen({
             <View key={item.id}>
               <FolderCard
                 {...item}
+                isDeleting={deletingFolderId === item.id}
                 onPress={() => onFolderPress(item.id)}
                 onRename={() => onRenameFolder(item.id)}
                 onDelete={() => onDeleteFolder(item.id)}

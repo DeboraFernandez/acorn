@@ -8,12 +8,13 @@ type FolderCardProps = {
   name: string;
   subtitle: string;
   iconSource?: number;
+  isDeleting?: boolean;
   onPress: () => void;
   onRename: () => void;
   onDelete: () => void;
 };
 
-export function FolderCard({ name, subtitle, iconSource, onPress, onRename, onDelete }: FolderCardProps) {
+export function FolderCard({ name, subtitle, iconSource, isDeleting, onPress, onRename, onDelete }: FolderCardProps) {
   const menuButtonRef = useRef<View>(null);
   const [menuVisible, setMenuVisible] = useState(false);
   const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
@@ -30,7 +31,7 @@ export function FolderCard({ name, subtitle, iconSource, onPress, onRename, onDe
   };
 
   return (
-    <TouchableOpacity style={styles.card} activeOpacity={0.85} onPress={onPress}>
+    <TouchableOpacity style={[styles.card, isDeleting && { opacity: 0.4 }]} activeOpacity={0.85} onPress={onPress} disabled={isDeleting}>
       {iconSource ? (
         <Image source={iconSource} style={styles.folderIcon} resizeMode="contain" />
       ) : (

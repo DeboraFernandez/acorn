@@ -25,6 +25,7 @@ export function useFolders() {
   const [error, setError] = useState('');
   const [builderOpen, setBuilderOpen] = useState(false);
   const [renamingFolder, setRenamingFolder] = useState<FolderData | null>(null);
+  const [deletingFolderId, setDeletingFolderId] = useState<string | null>(null);
 
   const fetchFolders = useCallback(async (mode: 'initial' | 'refresh') => {
     if (mode === 'initial') setLoading(true);
@@ -111,17 +112,21 @@ export function useFolders() {
   };
 
   const onDeleteFolder = async (id: string) => {
+    setDeletingFolderId(id);
+
     const { error: deleteError } = await supabase
       .from('smart_folders')
       .delete()
       .eq('id', id);
+
+    setDeletingFolderId(null);
 
     if (deleteError) {
       setError('No se pudo eliminar la carpeta.');
       return;
     }
 
-    void fetchFolders('refresh');
+    setFolders((prev) => prev.filter((f) => f.id !== id));
   };
 
   return {
@@ -131,6 +136,7 @@ export function useFolders() {
     error,
     builderOpen,
     renamingFolder,
+    deletingFolderId,
     onNewFolder,
     onBuilderClose,
     onBuilderCreated,
