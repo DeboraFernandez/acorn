@@ -11,8 +11,10 @@ export default function AppLayout() {
 
   const currentRoute = segments[segments.length - 1];
   const searchActive = currentRoute === 'search';
+  const tagsActive = currentRoute === 'folders';
   const profileActive = segments.includes('(profile)');
   const modalActive = currentRoute === 'confirm-modal';
+  const homeActive = !searchActive && !tagsActive && !profileActive && !modalActive;
 
   return (
     <View style={{ flex: 1 }}>
@@ -28,7 +30,7 @@ export default function AppLayout() {
           onLayout={(e) => setHeight(e.nativeEvent.layout.height)}
         >
           <NavBar
-            onHomePress={() => router.dismissAll()}
+            onHomePress={() => { if (!homeActive) router.dismissAll(); }}
             onAddPress={() =>
               Alert.alert('Guardar recurso', 'Elige el tipo de contenido', [
                 { text: 'Enlace', onPress: () => {} },
@@ -36,12 +38,13 @@ export default function AppLayout() {
                 { text: 'Cancelar', style: 'cancel' },
               ])
             }
-            onSearchPress={() => router.push('/(app)/search')}
-            onTagsPress={() => router.push('/(app)/folders')}
-            onProfilePress={() => router.push('/(app)/(profile)/')}
+            onSearchPress={() => { if (!searchActive) router.push('/(app)/search'); }}
+            onTagsPress={() => { if (!tagsActive) router.push('/(app)/folders'); }}
+            onProfilePress={() => { if (!profileActive) router.push('/(app)/(profile)/'); }}
+            homeActive={homeActive}
             searchActive={searchActive}
             profileActive={profileActive}
-            tagsActive={currentRoute === 'folders'}
+            tagsActive={tagsActive}
           />
         </View>
       )}
