@@ -5,7 +5,6 @@ import HomeScreen from '@screens/Home/Home';
 import { supabase } from '@lib/supabase/client';
 import { View } from 'react-native';
 
-
 export default function HomeRoute() {
   const router = useRouter();
   const [session, setSession] = useState<Session | null>(null);
@@ -18,12 +17,10 @@ export default function HomeRoute() {
   }, []);
 
   return (
-
-      <HomeScreen
-        userName={session?.user.email ?? 'Usuario'}
-        sharedUrl={sharedUrl}
-        onSharedUrlHandled={() => setSharedUrl(null)}
-        onSearchPress={() => router.push('/(app)/search')}
-      />
+    <HomeScreen
+      userName={session?.user.email ?? 'Usuario'}
+      sharedUrl={sharedUrl}
+      onSharedUrlHandled={() => setSharedUrl(null)}
+    />
   );
 }
