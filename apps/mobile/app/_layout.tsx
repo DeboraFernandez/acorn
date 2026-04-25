@@ -4,7 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
+import type { Session } from '@supabase/supabase-js';
 import { useState } from 'react';
 import { supabase } from '@lib/supabase';
 import { Keyboard, TouchableWithoutFeedback, View } from 'react-native';
@@ -18,34 +18,58 @@ function AuthGate() {
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    if (!supabase) {
-      setInitialized(true);
-      return;
-    }
+    let mounted = true;
 
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
+    const bootstrap = async () => {
+      const { data, error } = await supabase.auth.getSession();
+
+      if (!mounted) return;
+
+      if (error) {
+        console.warn('Failed to bootstrap Supabase session', error);
+      }
+
+      setSession(data.session ?? null);
       setInitialized(true);
-    });
+    };
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, nextSession: Session | null) => {
+    } = supabase.auth.onAuthStateChange((_event, nextSession: Session | null) => {
+      if (!mounted) return;
+
       setSession(nextSession);
+      setInitialized(true);
     });
 
-    return () => subscription.unsubscribe();
+    void bootstrap();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
+
   useEffect(() => {
     if (!initialized) return;
-    const inAuthGroup = segments[0] === '(auth)';
 
-    if (!session && !inAuthGroup) {
+    const rootGroup = segments[0];
+    const inAuthGroup = rootGroup === '(auth)';
+    const inAppGroup = rootGroup === '(app)';
+
+    if (!session && inAppGroup) {
       router.replace('/(auth)/login');
-    } else if (session && inAuthGroup) {
+      return;
+    }
+
+    if (session && inAuthGroup) {
       router.replace('/(app)/');
     }
-  }, [session, initialized, segments]);
+  }, [initialized, router, segments, session]);
+
+  if (!initialized) {
+    return null;
+  }
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
