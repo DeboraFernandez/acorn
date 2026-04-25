@@ -8,6 +8,7 @@ import type { Session } from '@supabase/supabase-js';
 import { useState } from 'react';
 import { supabase } from '@lib/supabase';
 import { Keyboard, TouchableWithoutFeedback, View } from 'react-native';
+import { NavBarHeightProvider } from '@context/NavBarHeightContext';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -18,21 +19,14 @@ function AuthGate() {
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    let mounted = true;
-
-    const bootstrap = async () => {
-      const { data, error } = await supabase.auth.getSession();
-
-      if (!mounted) return;
-
-      if (error) {
-        console.warn('Failed to bootstrap Supabase session', error);
-      }
-
-      setSession(data.session ?? null);
+    if (!supabase) {
       setInitialized(true);
-    };
-
+      return;
+    }
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      setInitialized(true);
+    });
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, nextSession: Session | null) => {
@@ -41,23 +35,13 @@ function AuthGate() {
       setSession(nextSession);
       setInitialized(true);
     });
-
-    void bootstrap();
-
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
     if (!initialized) return;
-
-    const rootGroup = segments[0];
-    const inAuthGroup = rootGroup === '(auth)';
-    const inAppGroup = rootGroup === '(app)';
-
-    if (!session && inAppGroup) {
+    const inAuthGroup = segments[0] === '(auth)';
+    if (!session && !inAuthGroup) {
       router.replace('/(auth)/login');
       return;
     }
@@ -82,11 +66,12 @@ function AuthGate() {
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    CabinetGrotesk: require('../assets/fonts/CabinetGrotesk-Variable.ttf'),
-    Satoshi: require('../assets/fonts/Satoshi-Variable.ttf'),
-    'Satoshi-Regular': require('../assets/fonts/Satoshi/Satoshi-Regular.otf'),
-    'Satoshi-Medium': require('../assets/fonts/Satoshi/Satoshi-Medium.otf'),
-    'CabinetGrotesk-Bold': require('../assets/fonts/CabinetGrotesk/CabinetGrotesk-Bold.otf'),
+    CabinetGrotesk: require('@assets/fonts/CabinetGrotesk-Variable.ttf'),
+    Satoshi: require('@assets/fonts/Satoshi-Variable.ttf'),
+    'Satoshi-Regular': require('@assets/fonts/Satoshi/Satoshi-Regular.otf'),
+    'Satoshi-Medium': require('@assets/fonts/Satoshi/Satoshi-Medium.otf'),
+    'Satoshi-Bold': require('@assets/fonts/Satoshi/Satoshi-Bold.otf'),
+    'CabinetGrotesk-Bold': require('@assets/fonts/CabinetGrotesk/CabinetGrotesk-Bold.otf'),
   });
 
   useEffect(() => {
@@ -97,8 +82,10 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <AuthGate />
-      <StatusBar style="dark" translucent backgroundColor="transparent" />
+      <NavBarHeightProvider>
+        <AuthGate />
+        <StatusBar style="dark" translucent backgroundColor="transparent" />
+      </NavBarHeightProvider>
     </SafeAreaProvider>
   );
 }

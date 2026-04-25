@@ -1,29 +1,30 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
-import type { Session } from '@supabase/supabase-js';
 import HomeScreen from '@screens/Home/Home';
-import { supabase } from '@lib/supabase';
-import { View } from 'react-native';
+import { supabase } from '@lib/supabase/client';
+
+function sanitizeDisplayName(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0];
+  return `${parts[0]} ${parts[1][0]}.`;
+}
 
 export default function HomeRoute() {
   const router = useRouter();
-  const [session, setSession] = useState<Session | null>(null);
+  const [displayName, setDisplayName] = useState<string>('Usuario');
   const [sharedUrl, setSharedUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    let mounted = true;
-
-    const bootstrap = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (!mounted) return;
-      setSession(data.session ?? null);
-    };
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      if (!mounted) return;
-      setSession(nextSession);
+    supabase?.auth.getUser().then(async ({ data }) => {
+      const userId = data.user?.id;
+      if (!userId) return;
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('display_name')
+        .eq('id', userId)
+        .single();
+      const raw = profile?.display_name ?? data.user?.email ?? 'Usuario';
+      setDisplayName(sanitizeDisplayName(raw));
     });
 
     void bootstrap();
@@ -35,13 +36,10 @@ export default function HomeRoute() {
   }, []);
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <HomeScreen
-        userName={session?.user.email ?? 'Usuario'}
-        sharedUrl={sharedUrl}
-        onSharedUrlHandled={() => setSharedUrl(null)}
-        onSearchPress={() => router.push('/(app)/search')}
-      />
-    </View>
+    <HomeScreen
+      userName={displayName}
+      sharedUrl={sharedUrl}
+      onSharedUrlHandled={() => setSharedUrl(null)}
+    />
   );
 }
