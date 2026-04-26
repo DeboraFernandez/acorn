@@ -23,15 +23,21 @@ export function Login() {
     const supabase = getSupabaseBrowserClient()
 
     const checkSession = async () => {
-      const { data, error } = await supabase.auth.getSession()
+      // Validate session against Supabase servers instead of trusting local token
+      const { data, error } = await supabase.auth.getUser()
 
       if (!active) {
         return
       }
 
-      if (!error && data.session) {
+      if (!error && data.user) {
         router.replace('/home')
         return
+      }
+
+      // If there's an invalid session stuck in cookies, clear it
+      if (error) {
+        await supabase.auth.signOut()
       }
 
       setSessionLoading(false)

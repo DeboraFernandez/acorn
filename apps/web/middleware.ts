@@ -18,14 +18,6 @@ function getRequiredPublicEnv(name: 'NEXT_PUBLIC_SUPABASE_URL' | 'NEXT_PUBLIC_SU
   return value
 }
 
-function withSupabaseCookies(source: NextResponse, target: NextResponse) {
-  source.cookies.getAll().forEach(({ name, value }) => {
-    target.cookies.set(name, value)
-  })
-
-  return target
-}
-
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
     request: {
@@ -52,22 +44,32 @@ export async function middleware(request: NextRequest) {
   )
 
   const {
-    data: { session }
-  } = await supabase.auth.getSession()
+    data: { user }
+  } = await supabase.auth.getUser()
 
   const { pathname } = request.nextUrl
   const isProtectedPath = isPathInPrefixes(pathname, PROTECTED_PATH_PREFIXES)
   const isAuthPath = isPathInPrefixes(pathname, AUTH_PATH_PREFIXES)
 
-  if (!session && isProtectedPath) {
+  if (!user && isProtectedPath) {
     const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('next', pathname)
 
-    return withSupabaseCookies(response, NextResponse.redirect(loginUrl))
+    const redirectResponse = NextResponse.redirect(loginUrl)
+    response.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie.name, cookie.value, cookie)
+    })
+
+    return redirectResponse
   }
 
-  if (session && isAuthPath) {
-    return withSupabaseCookies(response, NextResponse.redirect(new URL('/home', request.url)))
+  if (user && isAuthPath) {
+    const redirectResponse = NextResponse.redirect(new URL('/home', request.url))
+    response.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie.name, cookie.value, cookie)
+    })
+
+    return redirectResponse
   }
 
   return response
