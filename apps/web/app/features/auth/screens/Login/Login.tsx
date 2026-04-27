@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { getSupabaseBrowserClient } from '../../../../lib/supabase'
+import { getSupabaseBrowserClient } from '@/lib/supabase'
 import { AuthShell } from '../../components/AuthShell/AuthShell'
 import { GoogleOAuthButton } from '../../components/GoogleOAuthButton/GoogleOAuthButton'
 import { loginStyles } from './Login.styles'
