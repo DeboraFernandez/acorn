@@ -25,6 +25,7 @@ export type FolderResource = {
   domain: string
   url: string | null
   thumbnailUrl: string | null
+  createdAt: string
   createdAtLabel: string
   isRead: boolean
   tags: TagItem[]
@@ -57,6 +58,8 @@ function ruleMatchesItem(rule: SmartFolderRule, item: FolderResource): boolean {
         case 'contains': return itemDomain.includes(ruleValue)
         case 'equals': return itemDomain === ruleValue
         case 'not_equals': return itemDomain !== ruleValue
+        case 'starts_with': return itemDomain.startsWith(ruleValue)
+        case 'ends_with': return itemDomain.endsWith(ruleValue)
         default: return true
       }
     }
@@ -65,6 +68,9 @@ function ruleMatchesItem(rule: SmartFolderRule, item: FolderResource): boolean {
       switch (rule.operator) {
         case 'contains': return itemTags.some((t) => t.includes(ruleValue))
         case 'equals': return itemTags.some((t) => t === ruleValue)
+        case 'not_equals': return !itemTags.some((t) => t === ruleValue)
+        case 'in': return itemTags.some((t) => t === ruleValue)
+        case 'not_in': return !itemTags.some((t) => t === ruleValue)
         default: return true
       }
     }
@@ -74,6 +80,8 @@ function ruleMatchesItem(rule: SmartFolderRule, item: FolderResource): boolean {
         case 'contains': return itemTitle.includes(ruleValue)
         case 'equals': return itemTitle === ruleValue
         case 'not_equals': return itemTitle !== ruleValue
+        case 'starts_with': return itemTitle.startsWith(ruleValue)
+        case 'ends_with': return itemTitle.endsWith(ruleValue)
         default: return true
       }
     }
@@ -86,9 +94,11 @@ function ruleMatchesItem(rule: SmartFolderRule, item: FolderResource): boolean {
   }
 }
 
-function itemMatchesRules(item: FolderResource, rules: SmartFolderRule[]): boolean {
+function itemMatchesRules(item: FolderResource, rules: SmartFolderRule[], logic: 'ALL' | 'ANY'): boolean {
   if (rules.length === 0) return true
-  return rules.every((rule) => ruleMatchesItem(rule, item))
+  return logic === 'ANY'
+    ? rules.some((rule) => ruleMatchesItem(rule, item))
+    : rules.every((rule) => ruleMatchesItem(rule, item))
 }
 
 function mapRowToResource(row: ItemRow, tagColorMap: Map<string, string | null>): FolderResource {
@@ -99,6 +109,7 @@ function mapRowToResource(row: ItemRow, tagColorMap: Map<string, string | null>)
     domain: row.domain || 'Sin dominio',
     url: row.url,
     thumbnailUrl: row.og_image_url || row.preview_image_url || null,
+    createdAt: row.created_at,
     createdAtLabel: new Date(row.created_at).toLocaleDateString(),
     isRead: Boolean(row.is_read),
     tags: (row.tags ?? [])
@@ -137,7 +148,7 @@ export function useFolderDetail(folderId: string) {
 
         const { data: folderData, error: folderError } = await supabase
           .from('smart_folders')
-          .select('id, name, description, is_active, smart_folder_rules(id, field, operator, value, position)')
+          .select('id, name, description, is_active, logic, smart_folder_rules(id, field, operator, value, position)')
           .eq('id', folderId)
           .eq('user_id', user.id)
           .single()
@@ -150,6 +161,7 @@ export function useFolderDetail(folderId: string) {
 
         const rules: SmartFolderRule[] = (folderData.smart_folder_rules || [])
           .sort((a: SmartFolderRule, b: SmartFolderRule) => a.position - b.position)
+        const folderLogic: 'ALL' | 'ANY' = folderData.logic === 'ANY' ? 'ANY' : 'ALL'
 
         const mappedFolder: FolderDetail = {
           id: folderData.id,
@@ -225,7 +237,7 @@ export function useFolderDetail(folderId: string) {
 
           const ruleMatches = (itemsData || [])
             .map((row: ItemRow) => mapRowToResource(row, tagColorMap))
-            .filter((item) => itemMatchesRules(item, rules))
+            .filter((item) => itemMatchesRules(item, rules, folderLogic))
 
           const merged = new Map<string, FolderResource>()
           for (const resource of [...assignedResources, ...ruleMatches]) {
@@ -256,7 +268,7 @@ export function useFolderDetail(folderId: string) {
       case 'unread':
         return resources.filter((r) => !r.isRead)
       case 'recent':
-        return resources.filter((r) => new Date(r.createdAtLabel) >= sevenDaysAgo)
+        return resources.filter((r) => new Date(r.createdAt) >= sevenDaysAgo)
       default:
         return resources
     }

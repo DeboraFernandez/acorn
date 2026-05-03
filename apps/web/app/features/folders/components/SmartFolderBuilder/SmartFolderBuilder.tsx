@@ -97,7 +97,12 @@ export function SmartFolderBuilder({ onClose, onSaved, editingFolder }: SmartFol
             id: crypto.randomUUID(),
             field: r.field as RuleField,
             operator: r.operator as RuleOperator,
-            value: r.value ?? ''
+            value:
+              typeof r.value === 'string'
+                ? r.value
+                : typeof r.value === 'boolean'
+                  ? String(r.value)
+                  : ''
           }))
         )
       }
@@ -172,8 +177,36 @@ export function SmartFolderBuilder({ onClose, onSaved, editingFolder }: SmartFol
         field: rule.field,
         operator: rule.operator,
         value: rule.field === 'is_read' ? rule.value : rule.value.trim(),
-        position: index
+        position: index,
+        value_type: 'text',
+        order_index: index
       }))
+
+      const insertRulesForFolder = async (folderId: string) => {
+        const { error } = await supabase
+          .from('smart_folder_rules')
+          .insert(ruleInserts.map((r) => ({ ...r, folder_id: folderId })))
+
+        if (!error) return null
+
+        const message = String(error.message || '')
+        const missingCompatCols = message.includes('value_type') || message.includes('order_index')
+        if (!missingCompatCols) return error
+
+        const fallbackRows = ruleInserts.map((r) => ({
+          folder_id: folderId,
+          field: r.field,
+          operator: r.operator,
+          value: r.value,
+          position: r.position
+        }))
+
+        const { error: fallbackError } = await supabase
+          .from('smart_folder_rules')
+          .insert(fallbackRows)
+
+        return fallbackError
+      }
 
       if (isEditing) {
         const folderId = editingFolder!.id
@@ -200,11 +233,10 @@ export function SmartFolderBuilder({ onClose, onSaved, editingFolder }: SmartFol
           return
         }
 
-        const { error: rulesError } = await supabase
-          .from('smart_folder_rules')
-          .insert(ruleInserts.map((r) => ({ ...r, folder_id: folderId })))
+        const rulesError = await insertRulesForFolder(folderId)
 
         if (rulesError) {
+          console.error('Error guardando reglas (edit):', rulesError)
           setErrorMessage('No se pudieron guardar las reglas')
           setIsSaving(false)
           return
@@ -228,11 +260,10 @@ export function SmartFolderBuilder({ onClose, onSaved, editingFolder }: SmartFol
           return
         }
 
-        const { error: rulesError } = await supabase
-          .from('smart_folder_rules')
-          .insert(ruleInserts.map((r) => ({ ...r, folder_id: folderData.id })))
+        const rulesError = await insertRulesForFolder(folderData.id)
 
         if (rulesError) {
+          console.error('Error guardando reglas (create):', rulesError)
           await supabase.from('smart_folders').delete().eq('id', folderData.id)
           setErrorMessage('No se pudieron guardar las reglas')
           setIsSaving(false)

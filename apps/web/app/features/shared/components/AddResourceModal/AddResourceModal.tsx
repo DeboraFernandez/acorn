@@ -51,6 +51,8 @@ function LinkMode({ onClose, onSaved }: { onClose: () => void; onSaved: () => vo
   const [url, setUrl] = useState('')
   const [title, setTitle] = useState('')
   const [notes, setNotes] = useState('')
+  const [folders, setFolders] = useState<{ id: string; name: string }[]>([])
+  const [selectedFolderIds, setSelectedFolderIds] = useState<string[]>([])
   const [urlError, setUrlError] = useState('')
   const [phase, setPhase] = useState<LinkPhase>('idle')
   const [errorMsg, setErrorMsg] = useState('')
@@ -71,6 +73,33 @@ function LinkMode({ onClose, onSaved }: { onClose: () => void; onSaved: () => vo
       setFaviconError(false)
     }
   }, [urlValid])
+
+  useEffect(() => {
+    let active = true
+
+    const loadFolders = async () => {
+      const supabase = getSupabaseBrowserClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data } = await supabase
+        .from('smart_folders')
+        .select('id, name')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+
+      if (!active) return
+      setFolders((data || []).map((row) => ({ id: row.id, name: row.name || 'Carpeta sin nombre' })))
+    }
+
+    loadFolders().catch(() => {
+      if (active) setFolders([])
+    })
+
+    return () => {
+      active = false
+    }
+  }, [])
 
   const handleSave = useCallback(async () => {
     if (!urlValid) { setUrlError('Introduce una URL válida (https://...).'); return }
@@ -110,6 +139,19 @@ function LinkMode({ onClose, onSaved }: { onClose: () => void; onSaved: () => vo
         return
       }
 
+      if (selectedFolderIds.length > 0) {
+        const rows = selectedFolderIds.map((folderId) => ({
+          user_id: user.id,
+          item_id: itemId,
+          folder_id: folderId
+        }))
+        const { error: folderError } = await supabase.from('item_folders').insert(rows)
+        if (folderError) {
+          console.error('Error assigning folders:', folderError)
+          setErrorMsg('El enlace se guardo, pero no se pudo asignar a la carpeta seleccionada.')
+        }
+      }
+
       void supabase.functions.invoke('extract-metadata', {
         body: {
           item_id: itemId,
@@ -124,7 +166,7 @@ function LinkMode({ onClose, onSaved }: { onClose: () => void; onSaved: () => vo
       setPhase('error')
       setErrorMsg('Ocurrió un error inesperado.')
     }
-  }, [url, urlValid, title, notes, onSaved])
+  }, [url, urlValid, title, selectedFolderIds, onSaved])
 
   return (
     <>
@@ -197,6 +239,36 @@ function LinkMode({ onClose, onSaved }: { onClose: () => void; onSaved: () => vo
           </div>
         </div>
       )}
+
+      <div style={s.fieldGroup}>
+        <label style={s.label}>Carpetas (opcional)</label>
+        {folders.length === 0 ? (
+          <p style={{ ...s.previewSource, marginTop: '2px' }}>No tienes carpetas creadas.</p>
+        ) : (
+          <div style={{ display: 'grid', gap: '8px', marginTop: '2px' }}>
+            {folders.map((folder) => {
+              const checked = selectedFolderIds.includes(folder.id)
+              return (
+                <label key={folder.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input
+                    type='checkbox'
+                    checked={checked}
+                    onChange={() => {
+                      setSelectedFolderIds((prev) =>
+                        prev.includes(folder.id)
+                          ? prev.filter((id) => id !== folder.id)
+                          : [...prev, folder.id]
+                      )
+                    }}
+                    disabled={isSaving || isDone}
+                  />
+                  <span style={s.previewSource}>{folder.name}</span>
+                </label>
+              )
+            })}
+          </div>
+        )}
+      </div>
 
       {errorMsg ? <p style={s.errorText}>{errorMsg}</p> : null}
 
